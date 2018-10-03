@@ -1,0 +1,4 @@
+BasedOnStyle: Webkit
+IndentWidth: 4
+Cpp11BracedListStyle: true
+PointerAlignment: Right
