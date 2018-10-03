@@ -6,6 +6,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(UTL_NO_EXCEPTIONS "use -fno-rtti -fno-exceptions" OFF)
 
+if(CMAKE_COMPILER_IS_GNUCC)
+  option(ENABLE_COVERAGE "Enable coverage reporting for gcc/clang" FALSE)
+
+  if(ENABLE_COVERAGE)
+    add_compile_options(--coverage -O0)
+  endif()
+endif()
+
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_compile_options(-Weverything
         -Wno-c++98-compat 
@@ -37,5 +45,7 @@ target_compile_features(utl INTERFACE cxx_std_17)
 if(UTL_NO_EXCEPTIONS)
     target_compile_definitions(utl INTERFACE UTL_NO_EXCEPTIONS=1)
 endif()
+
+enable_testing()
 
 add_subdirectory(src)

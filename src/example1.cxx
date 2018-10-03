@@ -1,11 +1,11 @@
+#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <utl/vector.hpp>
 #include <vector>
-#include <random>
-#include <algorithm>
 
 //using std::vector;
 using utl::vector;
@@ -134,7 +134,8 @@ void swappability()
     assert(it == v2.begin());
 }
 
-void use_after_move() {
+void use_after_move()
+{
     vector<std::string> vec{"Hello", "World"};
     vector vec2 = std::move(vec);
     vec.resize(20);
@@ -143,12 +144,13 @@ void use_after_move() {
     assert(vec2[1] == "World");
 }
 
-void sortability() {
+void sortability()
+{
     vector<long> vec;
     std::random_device rd;
 
     vec.resize(100000);
-    std::for_each(std::begin(vec), std::end(vec), [&rd] (auto &x) noexcept {
+    std::for_each(std::begin(vec), std::end(vec), [&rd](auto &x) noexcept {
         x = rd();
     });
 
