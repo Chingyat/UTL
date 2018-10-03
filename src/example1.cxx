@@ -112,6 +112,13 @@ void input_iterator()
         assert(vec.size() == 7);
     }
     {
+        std::istringstream iss("1 2 3 4 5 6 7");
+        vector<std::string> vec{"oeuikaoeuao", "eaueoeu", "ueae"};
+        vec.insert(vec.begin() + 1, std::istream_iterator<std::string>{iss},
+            std::istream_iterator<std::string>());
+        assert(vec.size() == 10);
+    }
+    {
         std::istringstream iss("1 2 ");
         vector<int> vec{1, 2, 3};
         vec.assign(std::istream_iterator<int>{iss},
@@ -142,6 +149,22 @@ void use_after_move()
     assert(vec.size() == 20);
     assert(vec[0].empty());
     assert(vec2[1] == "World");
+}
+
+void assignability()
+{
+    vector<std::unique_ptr<int>> vec;
+    vec.emplace_back();
+    vec.emplace_back(std::make_unique<int>(42));
+    vec.push_back({});
+    vector<std::unique_ptr<int>> v2;
+    v2.push_back(std::make_unique<int>(33));
+    v2 = std::move(vec);
+    vec = vector<std::unique_ptr<int>>(10u);
+    assert(v2.size() == 3);
+    assert(vec.size() == 10);
+    v2.shrink_to_fit();
+    assert(v2.capacity() == 3);
 }
 
 void sortability()
