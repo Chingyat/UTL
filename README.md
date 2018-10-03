@@ -19,7 +19,14 @@
     - [ ] unordered_set
 
   - Algorithms
-    
+    - [x] copy
+    - [x] copy_backward
+
+  - Memory Management
+    - [x] allocator
+    - [ ] shared_ptr
+    - [ ] unique_ptr
+     
   - General utilities
     - [ ] type_traits
     - [ ] function

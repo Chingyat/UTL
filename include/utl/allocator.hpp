@@ -1,9 +1,12 @@
 #pragma once
+#include <utl/config.hpp>
+
+#include <memory>
 #include <new>
 #include <type_traits>
 
 namespace utl {
-template <class T>
+template <typename T>
 class allocator {
 public:
     using value_type = T;
@@ -20,7 +23,9 @@ public:
 
     T *allocate(size_t n)
     {
-        auto ret = operator new[](n * sizeof(T), static_cast<std::align_val_t>(alignof(T)));
+        auto ret = operator new[](n * sizeof(T), static_cast<std::align_val_t>(alignof(T)), std::nothrow);
+        if (!ret)
+            UTL_THROW(std::bad_alloc());
         return reinterpret_cast<T *>(ret);
     }
     void deallocate(T *p, [[maybe_unused]] size_t sz)
@@ -37,4 +42,6 @@ public:
         return false;
     }
 };
+
+using std::allocator_traits;
 }

@@ -1,151 +1,15 @@
 ﻿#pragma once
+#include <utl/algorithm.hpp>
+#include <utl/allocator.hpp>
+#include <utl/config.hpp>
+#include <utl/iterator.hpp>
+
 #include <cassert>
 #include <cstring>
-#include <initializer_list>
 #include <iterator>
 #include <memory>
-//#include <utl/allocator.hpp>
-
-#if UTL_NO_EXCEPTIONS
-#define UTL_THROW(...) std::terminate()
-#define UTL_RETHROW assert(false)
-#define UTL_TRY
-#define UTL_CATCH(...) if constexpr (0)
-#else
-#define UTL_THROW throw
-#define UTL_RETHROW throw
-#define UTL_TRY try
-#define UTL_CATCH catch
-#endif
 
 namespace utl {
-
-using std::allocator;
-using std::allocator_traits;
-using std::initializer_list;
-using std::iterator_traits;
-
-template <typename It, typename Val, typename Ref, typename Ptr, typename Cat, typename Diff = std::ptrdiff_t>
-class iterator_wrapper {
-public:
-    using value_type = Val;
-    using reference = Ref;
-    using pointer = Ptr;
-    using iterator_category = Cat;
-    using difference_type = Diff;
-
-    static_assert(std::is_signed_v<Diff>);
-
-    auto &data() noexcept { return static_cast<It *>(this)->m_data; }
-
-    auto data() const noexcept { return static_cast<const It *>(this)->m_data; }
-
-    reference operator*() const noexcept
-    {
-        return static_cast<Ref>(*this->data());
-    }
-
-    reference operator[](difference_type idx) const noexcept
-    {
-        return static_cast<Ref>(this->data()[idx]);
-    }
-
-    pointer operator->() const noexcept { return static_cast<Ptr>(this->data()); }
-
-    It &operator++() noexcept
-    {
-        advance();
-        return static_cast<It &>(*this);
-    }
-
-    It operator++(int) noexcept
-    {
-        const It retval = static_cast<const It &>(*this);
-        advance();
-        return retval;
-    }
-
-    It &operator--() noexcept
-    {
-        advance(-1);
-        return static_cast<It &>(*this);
-    }
-
-    It operator--(int) noexcept
-    {
-        const It retval = static_cast<const It &>(*this);
-        advance(-1);
-        return retval;
-    }
-
-    friend It operator+(const iterator_wrapper &it, difference_type diff) noexcept
-    {
-        return It{it.data() + diff};
-    }
-
-    friend It operator+(difference_type diff, const iterator_wrapper &it) noexcept
-    {
-        return It{it.data() + diff};
-    }
-
-    friend It operator-(const iterator_wrapper &it, difference_type diff) noexcept
-    {
-        return It{it.data() - diff};
-    }
-
-    It &operator+=(difference_type diff) noexcept
-    {
-        advance(diff);
-        return static_cast<It &>(*this);
-    }
-
-    It &operator-=(difference_type diff) noexcept
-    {
-        advance(-diff);
-        return static_cast<It &>(*this);
-    }
-
-    friend bool operator==(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
-    {
-        return lhs.data() == rhs.data();
-    }
-
-    friend bool operator!=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
-    {
-        return lhs.data() != rhs.data();
-    }
-
-    friend bool operator<(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
-    {
-        return lhs.data() < rhs.data();
-    }
-
-    friend bool operator>(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
-    {
-        return lhs.data() > rhs.data();
-    }
-
-    friend bool operator<=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
-    {
-        return lhs.data() <= rhs.data();
-    }
-
-    friend bool operator>=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
-    {
-        return lhs.data() >= rhs.data();
-    }
-
-    friend difference_type operator-(const iterator_wrapper &lhs, iterator_wrapper const &rhs) noexcept
-    {
-        return lhs.data() - rhs.data();
-    }
-
-    void advance(difference_type diff = 1) noexcept
-    {
-        assert(this->data() != nullptr);
-        this->data() += diff;
-    }
-};
 
 template <typename Tp>
 class vector_const_iterator;
@@ -191,35 +55,6 @@ constexpr vector_iterator<Tp>::operator vector_const_iterator<Tp>() const noexce
     return vector_const_iterator<Tp>{*this};
 }
 
-template <typename InputIterator>
-class move_if_noexcept_iterator;
-
-template <typename InputIterator>
-using move_if_noexcept_iterator_base = iterator_wrapper<
-    move_if_noexcept_iterator<InputIterator>,
-    typename iterator_traits<InputIterator>::value_type,
-    std::conditional_t<
-        std::is_nothrow_move_constructible_v<typename iterator_traits<InputIterator>::value_type> || !std::is_copy_constructible_v<typename iterator_traits<InputIterator>::value_type>,
-        std::add_rvalue_reference_t<typename iterator_traits<InputIterator>::value_type>,
-        std::add_lvalue_reference_t<std::add_const_t<typename iterator_traits<InputIterator>::value_type>>>,
-    typename iterator_traits<InputIterator>::pointer,
-    typename iterator_traits<InputIterator>::iterator_category,
-    typename iterator_traits<InputIterator>::difference_type>;
-
-template <typename InputIterator>
-class move_if_noexcept_iterator
-    : public move_if_noexcept_iterator_base<InputIterator> {
-public:
-    move_if_noexcept_iterator() noexcept = default;
-
-    explicit move_if_noexcept_iterator(InputIterator it) noexcept
-        : m_data(it)
-    {
-    }
-
-    InputIterator m_data;
-};
-
 template <typename Tp, typename Allocator = allocator<Tp>>
 class vector {
 public:
@@ -240,6 +75,7 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 private:
+
     static void destroy(pointer data, size_type count, allocator_type &allocator) noexcept
     {
         if (!std::is_trivially_destructible_v<value_type> && !std::is_fundamental_v<value_type>)
@@ -350,56 +186,6 @@ private:
     static decltype(auto) forward_args(Args &&... args) noexcept
     {
         return std::tuple<Args &&...>(std::forward<Args>(args)...);
-    }
-
-    template <typename BiIt1, typename BiIt2>
-    static BiIt2 copy_backward(BiIt1 first, BiIt1 last, BiIt2 output_last)
-    {
-        while (first != last)
-            *--output_last = *--last;
-
-        return output_last;
-    }
-
-    template <typename ValTp = value_type, typename Void = std::enable_if_t<std::is_trivially_copyable_v<ValTp>>>
-    static ValTp *copy_backward(ValTp *first, ValTp *last, ValTp *output_last) noexcept
-    {
-        auto const ret_val = output_last - (last - first);
-        std::memmove(ret_val, first, (last - first) * sizeof(ValTp));
-        return ret_val;
-    }
-
-    template <typename ValTp = value_type, typename Void = std::enable_if_t<std::is_trivially_copyable_v<ValTp>>>
-    static ValTp *copy_backward(move_if_noexcept_iterator<ValTp *> first, move_if_noexcept_iterator<ValTp *> last, ValTp *output_last) noexcept
-    {
-        auto const ret_val = output_last - (last - first);
-        std::memmove(ret_val, first.data(), (last - first) * sizeof(ValTp));
-        return ret_val;
-    }
-
-    template <typename InputIterator, typename OutputIterator>
-    static OutputIterator copy(InputIterator first, InputIterator last, OutputIterator output_first)
-    {
-        while (first != last)
-            *output_first++ = *first++;
-
-        return output_first;
-    }
-
-    template <typename ValTp = value_type, typename = std::enable_if_t<std::is_trivially_copyable_v<ValTp>>>
-    static ValTp *copy(ValTp *first, ValTp *last, ValTp *output_first) noexcept
-    {
-        const auto num = last - first;
-        std::memmove(output_first, first, num * sizeof(value_type));
-        return output_first + num;
-    }
-
-    template <typename ValTp = value_type, typename = std::enable_if_t<std::is_trivially_copyable_v<ValTp>>>
-    static ValTp *copy(move_if_noexcept_iterator<ValTp *> first, move_if_noexcept_iterator<ValTp *> last, ValTp *output_first) noexcept
-    {
-        const auto num = last - first;
-        std::memmove(output_first, first.data(), num * sizeof(ValTp));
-        return output_first + num;
     }
 
     static void realloc(pointer &data, size_type count, size_type &cap, size_type new_cap, allocator_type &allocator)
@@ -852,7 +638,7 @@ public:
             const auto size = m_size;
             construct(m_data + size + count - num, num, move_if_noexcept_iterator(m_data + size - num), m_alloc);
             m_size += count;
-            copy_backward(move_if_noexcept_iterator(m_data + idx), move_if_noexcept_iterator(m_data + size - num), m_data + size + count - num);
+            utl::copy_backward(move_if_noexcept_iterator(m_data + idx), move_if_noexcept_iterator(m_data + size - num), m_data + size + count - num);
             destroy(m_data + idx, num, m_alloc); // destruction might be unneeded
             construct(m_data + idx, count, std::forward<Arg>(arg), m_alloc);
             return m_data + idx;
@@ -907,7 +693,7 @@ public:
     iterator erase(const_iterator first, const_iterator last)
     {
         const size_type num = last - first;
-        copy(move_if_noexcept_iterator(last.data()), move_if_noexcept_iterator(cend().data()), first.data());
+        utl::copy(move_if_noexcept_iterator(last.data()), move_if_noexcept_iterator(cend().data()), first.data());
         destroy(m_data + m_size - num, num, m_alloc);
         m_size -= num;
         return iterator(first.data());
