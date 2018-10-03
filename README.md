@@ -1,6 +1,6 @@
 # UTL -- the µicro Template Library
 
-![travis-ci](https://travis-ci.org/Chingyat/UTL.svg?branch=master)
+[![Build Status](https://travis-ci.org/Chingyat/UTL.svg?branch=master)](https://travis-ci.org/Chingyat/UTL)
 [![codecov](https://codecov.io/gh/Chingyat/UTL/branch/master/graph/badge.svg)](https://codecov.io/gh/Chingyat/UTL)
 
 ## Features:
@@ -40,8 +40,11 @@
   - Filesystem
     
   - Network
+  
+## License
+
+BSD-3-Clause
 
 -------------------------------------
 This is just a toy project. Don't expect this to be big and professional.
 
-]
