@@ -510,12 +510,12 @@ public:
 
     size_type capacity() const noexcept { return m_cap; }
 
-    void resize(size_type size) { resize(size, forward_args()); }
+    void resize(size_type size) { resize_impl(size, std::tuple<>()); }
 
-    void resize(size_type size, const_reference val) { resize(size, forward_args(val)); }
+    void resize(size_type size, const_reference val) { resize_impl(size, forward_args(val)); }
 
     template <typename Arg>
-    void resize(size_type size, Arg &&arg)
+    void resize_impl(size_type size, Arg &&arg)
     {
         reserve(size);
         if (m_size < size)
