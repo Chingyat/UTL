@@ -6,7 +6,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-8
+      - g++-8
       
 script:
   - CXX=/usr/bin/g++-8 CC=/usr/bin/gcc-8 cmake -DENABLE_COVERAGE=ON -DUTL_NO_EXCEPTIONS=ON .
