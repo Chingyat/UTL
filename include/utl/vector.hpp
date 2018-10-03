@@ -324,7 +324,7 @@ public:
             m_size = 0;
         }
 
-        const size_type common = std::min(m_size, other.m_size);
+        const size_type common = utl::min(m_size, other.m_size);
 
         // CopyAssignable
         for (size_type i = 0; i != common; ++i)
@@ -375,7 +375,7 @@ public:
             m_cap = other.m_size;
         }
 
-        const size_type common = std::min(m_size, other.m_size);
+        const size_type common = utl::min(m_size, other.m_size);
 
         // MoveAssignable
         for (size_type i = 0; i != common; ++i)
@@ -425,7 +425,7 @@ public:
                 m_size = 0;
             }
 
-            const size_type common = std::min(m_size, count);
+            const size_type common = utl::min(m_size, count);
 
             // CopyAssignable
             for (size_type i = 0; i != common; ++i)
@@ -454,7 +454,7 @@ public:
             m_size = 0;
         }
 
-        const size_type common = std::min(m_size, num);
+        const size_type common = utl::min(m_size, num);
 
         // CopyAssignable
         for (size_type i = 0; i != common; ++i)
@@ -528,7 +528,7 @@ public:
     void reserve(size_type num)
     {
         if (num > m_cap) {
-            auto new_cap = std::max(m_cap * 2, num);
+            auto new_cap = utl::max(m_cap * 2, num);
             realloc(m_data, m_size, m_cap, new_cap, m_alloc);
         }
     }
@@ -604,7 +604,7 @@ public:
     pointer insert(size_type idx, size_type count, Arg &&arg)
     {
         if (m_size + count > m_cap) {
-            const auto new_cap = std::max(m_size + count, m_size * 2);
+            const auto new_cap = utl::max(m_size + count, m_size * 2);
             const pointer new_data = alloc_and_construct(idx, new_cap, move_if_noexcept_iterator(m_data), m_alloc, m_data);
 
             UTL_TRY
@@ -634,7 +634,7 @@ public:
             m_size = m_size + count;
             return m_data + idx;
         } else {
-            const size_type num = std::min(m_size - idx, count);
+            const size_type num = utl::min(m_size - idx, count);
             const auto size = m_size;
             construct(m_data + size + count - num, num, move_if_noexcept_iterator(m_data + size - num), m_alloc);
             m_size += count;

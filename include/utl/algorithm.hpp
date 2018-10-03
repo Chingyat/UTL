@@ -5,6 +5,18 @@
 
 namespace utl {
 
+template <typename T1, typename T2>
+constexpr decltype(auto) max(const T1 &x, const T2 &y) noexcept
+{
+    return x < y ? y : x;
+}
+
+template <typename T1, typename T2>
+constexpr decltype(auto) min(const T1 &x, const T2 &y) noexcept
+{
+    return x < y ? x : y;
+}
+
 template <typename BiIt1, typename BiIt2>
 inline BiIt2 copy_backward(BiIt1 first, BiIt1 last, BiIt2 output_last)
 {
