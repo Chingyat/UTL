@@ -189,7 +189,7 @@ private:
 
     static void realloc(pointer &data, size_type count, size_type &cap, size_type new_cap, allocator_type &allocator)
     {
-        assert((!data && !count) || (data && count));
+        assert((!data && !count) || (data && cap));
 
         if constexpr (std::is_trivially_copyable_v<value_type>) {
             const auto new_data = alloc_traits::allocate(allocator, new_cap);
@@ -600,12 +600,12 @@ public:
     template <typename... Args>
     iterator emplace(const_iterator position, Args &&... args)
     {
-        auto ptr = insert(position - begin(), 1, forward_args(std::forward<Args>(args)...));
+        auto ptr = insert_impl(position - begin(), 1, forward_args(std::forward<Args>(args)...));
         return iterator{ptr};
     }
 
     template <typename Arg>
-    pointer insert(size_type idx, size_type count, Arg &&arg)
+    pointer insert_impl(size_type idx, size_type count, Arg &&arg)
     {
         if (m_size + count > m_cap) {
             const auto new_cap = utl::max(m_size + count, m_size * 2);
@@ -644,26 +644,36 @@ public:
             m_size += count;
             utl::copy_backward(move_if_noexcept_iterator(m_data + idx), move_if_noexcept_iterator(m_data + size - num), m_data + size + count - num);
             destroy(m_data + idx, num, m_alloc); // destruction might be unneeded
-            construct(m_data + idx, count, std::forward<Arg>(arg), m_alloc);
+            UTL_TRY
+            {
+                construct(m_data + idx, count, std::forward<Arg>(arg), m_alloc);
+            }
+            UTL_CATCH(...)
+            {
+                utl::copy(move_if_noexcept_iterator(m_data + size - num), move_if_noexcept_iterator(m_data + idx), m_data + size + count - num);
+                destroy(m_data + size + count - num, num, m_alloc);
+                m_size -= count;
+                UTL_RETHROW;
+            }
             return m_data + idx;
         }
     }
 
     iterator insert(const_iterator position, const_reference elem)
     {
-        auto *ptr = insert(position - begin(), 1, forward_args(elem));
+        auto *ptr = insert_impl(position - begin(), 1, forward_args(elem));
         return iterator{ptr};
     }
 
     iterator insert(const_iterator position, rvalue_reference elem)
     {
-        auto *ptr = insert(position - begin(), 1, forward_args(std::move(elem)));
+        auto *ptr = insert_impl(position - begin(), 1, forward_args(std::move(elem)));
         return iterator{ptr};
     }
 
     iterator insert(const_iterator position, size_type num, const_reference elem)
     {
-        auto *ptr = insert(position - begin(), num, forward_args(elem));
+        auto *ptr = insert_impl(position - begin(), num, forward_args(elem));
         return iterator{ptr};
     }
 
@@ -674,18 +684,18 @@ public:
             auto idx = position - begin();
             const auto idx_origin = idx;
             while (first != last)
-                insert(idx++, 1, forward_args(*first++));
+                insert_impl(idx++, 1, forward_args(*first++));
             return iterator{m_data + idx_origin};
         } else {
             const size_type num = std::distance(first, last);
-            auto *const ptr = insert(position - begin(), num, first);
+            auto *const ptr = insert_impl(position - begin(), num, first);
             return iterator{ptr};
         }
     }
 
     iterator insert(const_iterator position, initializer_list<value_type> il)
     {
-        auto *const ptr = insert(position - begin(), il.size(), il.begin());
+        auto *const ptr = insert_impl(position - begin(), il.size(), il.begin());
         return iterator{ptr};
     }
 

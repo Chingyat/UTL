@@ -3,7 +3,11 @@
 #include <cstring>
 #include <initializer_list>
 
-#ifdef UTL_NO_EXCEPTIONS
+#ifndef UTL_NO_EXCEPTIONS
+#    define UTL_NO_EXCEPTIONS 0
+#endif
+
+#if UTL_NO_EXCEPTIONS
 
 #    define UTL_THROW(...) std::abort()
 #    define UTL_RETHROW assert(false)
