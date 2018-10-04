@@ -1,10 +1,11 @@
+#include <utl/vector.hpp>
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <random>
 #include <sstream>
 #include <string>
-#include <utl/vector.hpp>
 #include <vector>
 
 //using std::vector;
@@ -16,7 +17,7 @@ template class utl::vector<std::string>;
 
 void equality()
 {
-    vector<long> vec {1, 2, 3, 4};
+    vector<long> vec{1, 2, 3, 4};
 
     auto vec2 = vec;
 
@@ -26,11 +27,11 @@ void equality()
 void insertibility()
 {
     {
-        vector<long> vec {1, 2, 3, 5};
+        vector<long> vec{1, 2, 3, 5};
         auto it = std::find(vec.begin(), vec.end(), 5);
         vec.insert(it, 4);
 
-        vector<long> vec2 {1, 2, 3, 4, 5};
+        vector<long> vec2{1, 2, 3, 4, 5};
         assert(vec == vec2);
     }
     {
@@ -53,16 +54,16 @@ void insertibility()
 void erasability()
 {
     {
-        vector<std::vector<int>> vec {
-            std::vector {1, 3, 4},
-            std::vector {0, 0, 0},
+        vector<std::vector<int>> vec{
+            std::vector{1, 3, 4},
+            std::vector{0, 0, 0},
         };
 
         vec.erase(vec.begin());
-        assert((vec[0] == std::vector<int> {0, 0, 0}));
+        assert((vec[0] == std::vector<int>{0, 0, 0}));
     }
     {
-        vector<int> vec {1, 1, 2, 2, 3, 3, 1, 2, 3, 1, 2, 3};
+        vector<int> vec{1, 1, 2, 2, 3, 3, 1, 2, 3, 1, 2, 3};
         vec.erase(std::remove_if(vec.begin(), vec.end(),
                       [](int x) { return bool(x % 2); }),
             vec.end());
@@ -85,42 +86,42 @@ void input_iterator()
 {
     {
         std::istringstream iss("1 2 3 4 5 6 7");
-        vector vec(std::istream_iterator<int> {iss},
+        vector vec(std::istream_iterator<int>{iss},
             std::istream_iterator<int>());
         assert(vec.size() == 7);
     }
     {
         std::istringstream iss("1 2 3 4 5 6 7");
-        vector<int> vec {1, 2, 3};
-        vec.insert(vec.end(), std::istream_iterator<int> {iss},
+        vector<int> vec{1, 2, 3};
+        vec.insert(vec.end(), std::istream_iterator<int>{iss},
             std::istream_iterator<int>());
         assert(vec.size() == 10);
     }
     {
         std::istringstream iss("1 2 3 4 5 6 7");
-        vector<int> vec {1, 2, 3};
-        vec.assign(std::istream_iterator<int> {iss},
+        vector<int> vec{1, 2, 3};
+        vec.assign(std::istream_iterator<int>{iss},
             std::istream_iterator<int>());
         assert(vec.size() == 7);
     }
     {
         std::istringstream iss("1 2 3 4 5 6 7");
-        vector<std::string> vec {"oeuikaoeuao", "eaueoeu", "ueae"};
-        vec.assign(std::istream_iterator<std::string> {iss},
+        vector<std::string> vec{"oeuikaoeuao", "eaueoeu", "ueae"};
+        vec.assign(std::istream_iterator<std::string>{iss},
             std::istream_iterator<std::string>());
         assert(vec.size() == 7);
     }
     {
         std::istringstream iss("1 2 3 4 5 6 7");
-        vector<std::string> vec {"oeuikaoeuao", "eaueoeu", "ueae"};
-        vec.insert(vec.begin() + 1, std::istream_iterator<std::string> {iss},
+        vector<std::string> vec{"oeuikaoeuao", "eaueoeu", "ueae"};
+        vec.insert(vec.begin() + 1, std::istream_iterator<std::string>{iss},
             std::istream_iterator<std::string>());
         assert(vec.size() == 10);
     }
     {
         std::istringstream iss("1 2 ");
-        vector<int> vec {1, 2, 3};
-        vec.assign(std::istream_iterator<int> {iss},
+        vector<int> vec{1, 2, 3};
+        vec.assign(std::istream_iterator<int>{iss},
             std::istream_iterator<int>());
         assert(vec.size() == 2);
     }
@@ -128,21 +129,21 @@ void input_iterator()
 
 void swappability()
 {
-    vector<int> v1 {1, 2, 3};
-    vector<int> v2 {4, 5, 6};
+    vector<int> v1{1, 2, 3};
+    vector<int> v2{4, 5, 6};
 
     auto it = v1.begin();
 
     swap(v1, v2);
 
-    assert((v1 == vector<int> {4, 5, 6}));
-    assert((v2 == vector<int> {1, 2, 3}));
+    assert((v1 == vector<int>{4, 5, 6}));
+    assert((v2 == vector<int>{1, 2, 3}));
     assert(it == v2.begin());
 }
 
 void use_after_move()
 {
-    vector<std::string> vec {"Hello", "World"};
+    vector<std::string> vec{"Hello", "World"};
     vector vec2 = std::move(vec);
     vec.resize(20);
     assert(vec.size() == 20);
@@ -167,7 +168,7 @@ void assignability()
         assert(v2.capacity() == 3);
     }
     {
-	vector<std::string> v1 {"abdkdndodjssodj", "111111111121"};
+        vector<std::string> v1{"abdkdndodjssodj", "111111111121"};
         v1.assign(30u, "Hello world");
         assert(std::all_of(v1.cbegin(), v1.cend(),
             [](const auto &x) { return x == "Hello world"; }));

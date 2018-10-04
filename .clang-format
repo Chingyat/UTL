@@ -2,3 +2,16 @@ BasedOnStyle: Webkit
 IndentWidth: 4
 Cpp11BracedListStyle: true
 PointerAlignment: Right
+SpaceBeforeCpp11BracedList: false
+FixNamespaceComments: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '".*"'
+    Priority: 1
+  - Regex: '<utl/.*>'
+    Priority: 2
+  - Regex: '<.*\.h>'
+    Priority: 3
+  - Regex: '<\w*>'
+    Priority: 4
+IndentPPDirectives: AfterHash

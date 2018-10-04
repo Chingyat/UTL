@@ -221,7 +221,7 @@ public:
     {
     }
 
-    explicit vector(size_type num, const allocator_type &allocator = Allocator())
+    explicit vector(size_type num, const allocator_type &allocator = allocator_type())
         : m_alloc(allocator)
         , m_data(alloc_and_construct(num, forward_args(), m_alloc))
         , m_cap(num)
@@ -229,7 +229,7 @@ public:
     {
     }
 
-    vector(size_type num, const_reference val, const allocator_type &allocator = Allocator())
+    vector(size_type num, const_reference val, const allocator_type &allocator = allocator_type())
         : m_alloc(allocator)
         , m_data(alloc_and_construct(num, forward_args(val), m_alloc))
         , m_cap(num)
@@ -238,7 +238,7 @@ public:
     }
 
     template <typename InputIterator>
-    vector(InputIterator first, InputIterator last, const allocator_type &allocator = Allocator())
+    vector(InputIterator first, InputIterator last, const allocator_type &allocator = allocator_type())
         : m_alloc(allocator)
     {
         if constexpr (std::is_same_v<typename iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>) {
@@ -750,7 +750,7 @@ public:
     }
 
 private:
-    Allocator m_alloc;
+    allocator_type m_alloc;
     pointer m_data;
     size_type m_cap;
     size_type m_size;

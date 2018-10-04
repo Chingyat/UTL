@@ -66,4 +66,4 @@ inline Tp *copy_backward(move_if_noexcept_iterator<Tp *> first, move_if_noexcept
     std::memmove(ret_val, first.data(), (last - first) * sizeof(Tp));
     return ret_val;
 }
-}
+} // namespace utl

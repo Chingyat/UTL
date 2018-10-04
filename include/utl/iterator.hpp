@@ -159,4 +159,4 @@ public:
 
     InputIterator m_data;
 };
-}
+} // namespace utl
