@@ -41,12 +41,55 @@ void test_assign()
     v2.assign(8u, "XXXXXXXXXXX");
     assert(v2.size() == 8);
     assert(std::all_of(v2.begin(), v2.end(), [](const auto &x) { return x == "XXXXXXXXXXX"; }));
+    v2.assign(100u, "12345678901234567890");
+    assert(std::all_of(v2.begin(), v2.end(), [](const auto &x) { return x == "12345678901234567890"; }));
     v3.assign({"1", "2", "3", "4", "5"});
     assert(v3.size() == 5);
+    v3.reserve(200u);
+    v3.assign(100u, "12345678901234567890");
+    assert(std::all_of(v3.begin(), v3.end(), [](const auto &x) { return x == "12345678901234567890"; }));
+}
+
+void test_iter()
+{
+    utl::vector<int> v{1, 2, 3, 4, 5};
+    const int a1[5]{1, 2, 3, 4, 5};
+    const int a2[5]{5, 4, 3, 2, 1};
+    assert(std::equal(std::begin(a1), std::end(a1),
+        std::begin(v), std::end(v)));
+    assert(std::equal(std::begin(a2), std::end(a2),
+        std::rbegin(v), std::rend(v)));
+    assert(std::equal(std::begin(a1), std::end(a1),
+        std::cbegin(v), std::cend(v)));
+    assert(std::equal(std::begin(a2), std::end(a2),
+        std::crbegin(v), std::crend(v)));
+}
+
+void test_cap()
+{
+    utl::vector<int> v{1, 2, 3, 4, 5};
+    v.resize(1);
+    assert(v.size() == 1);
+    v.resize(100);
+    assert(v.size() == 100);
+    v.reserve(200);
+    assert(v.capacity() >= 200);
+    assert(v.size() == 100);
+    v.shrink_to_fit();
+    assert(v.size() == 100);
+    assert(v.capacity() == 100);
+    assert(!v.empty());
+    v.resize(0);
+    assert(v.empty());
+    v.resize(100, 42);
+    v.clear();
+    assert(v.size() == 0);
 }
 
 int main()
 {
     test_ctor();
     test_assign();
+    test_iter();
+    test_cap();
 }

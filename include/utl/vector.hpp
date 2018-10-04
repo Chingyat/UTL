@@ -485,16 +485,16 @@ public:
     const_iterator end() const noexcept { return const_iterator{m_data + m_size}; }
     reverse_iterator rbegin() noexcept
     {
-        return std::make_reverse_iterator(begin());
+        return std::make_reverse_iterator(end());
     }
     const_reverse_iterator rbegin() const noexcept
     {
-        return std::make_reverse_iterator(begin());
+        return std::make_reverse_iterator(end());
     }
-    reverse_iterator rend() noexcept { return std::make_reverse_iterator(end()); }
+    reverse_iterator rend() noexcept { return std::make_reverse_iterator(begin()); }
     const_reverse_iterator rend() const noexcept
     {
-        return std::make_reverse_iterator(end());
+        return std::make_reverse_iterator(begin());
     }
     const_iterator cbegin() const noexcept { return begin(); }
     const_iterator cend() const noexcept { return end(); }
