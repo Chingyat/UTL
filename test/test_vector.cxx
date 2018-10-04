@@ -86,10 +86,70 @@ void test_cap()
     assert(v.size() == 0);
 }
 
+template <typename T>
+struct NonequalAllocator {
+    using value_type = T;
+    using propagate_on_container_move_assignment = std::false_type;
+    using is_always_equal = std::false_type;
+    explicit NonequalAllocator(int id) noexcept
+        : m_id(id)
+    {
+    }
+    NonequalAllocator(const NonequalAllocator &) noexcept = default;
+    template <class U>
+    NonequalAllocator(const NonequalAllocator<U> &x) noexcept
+        : m_id(x.m_id)
+    {
+    }
+    ~NonequalAllocator() = default;
+    NonequalAllocator &operator=(const NonequalAllocator &) noexcept = default;
+
+    T *allocate(size_t n)
+    {
+        auto ret = operator new[](n * sizeof(T), static_cast<std::align_val_t>(alignof(T)), std::nothrow);
+        if (!ret)
+            UTL_THROW(std::bad_alloc());
+        return reinterpret_cast<T *>(ret);
+    }
+    void deallocate(T *p, [[maybe_unused]] size_t sz)
+    {
+        operator delete[](p, static_cast<std::align_val_t>(alignof(T)));
+    }
+
+    friend bool operator==(const NonequalAllocator &lhs, const NonequalAllocator &rhs) noexcept
+    {
+        return lhs.m_id == rhs.m_id;
+    }
+    friend bool operator!=(const NonequalAllocator &lhs, const NonequalAllocator &rhs) noexcept
+    {
+        return !(lhs == rhs);
+    }
+
+    int m_id;
+};
+
+void test_with_nonequal_allocator()
+{
+    utl::vector v1(100u, 42, NonequalAllocator<int>(1));
+    utl::vector v2(34u, 5, NonequalAllocator<int>(3));
+    auto v3 = v2;
+
+    assert(std::equal(v3.begin(), v3.end(), v2.begin(), v2.end()));
+
+    v2 = v1;
+
+    assert(std::equal(v1.begin(), v1.end(), v2.begin(), v2.end()));
+
+    v3 = std::move(v1);
+
+    assert(std::equal(v1.begin(), v1.end(), v3.begin(), v3.end()));
+}
+
 int main()
 {
     test_ctor();
     test_assign();
     test_iter();
     test_cap();
+    test_with_nonequal_allocator();
 }
