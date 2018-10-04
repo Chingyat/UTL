@@ -12,7 +12,6 @@ using utl::vector;
 
 template class utl::vector<long>;
 template class utl::vector<char *>;
-//template class std::vector<std::unique_ptr<int>>;
 template class utl::vector<std::string>;
 
 void equality()
@@ -206,5 +205,6 @@ int main()
     input_iterator();
     swappability();
     use_after_move();
+    assignability();
     sortability();
 }
