@@ -1,6 +1,7 @@
 #pragma once
 #include <utl/config.hpp>
 
+#include <cassert>
 #include <iterator>
 
 namespace utl {

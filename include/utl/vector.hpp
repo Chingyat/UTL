@@ -75,7 +75,6 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 private:
-
     static void destroy(pointer data, size_type count, allocator_type &allocator) noexcept
     {
         if (!std::is_trivially_destructible_v<value_type> && !std::is_fundamental_v<value_type>)
@@ -286,14 +285,14 @@ public:
             m_data = other.m_data;
             m_cap = other.m_cap;
             m_size = other.m_size;
-            other.m_data = nullptr;
-            other.m_cap = 0;
-            other.m_size = 0;
         } else {
             m_data = alloc_and_construct(other.m_size, other.m_data, m_alloc);
             m_size = other.m_size;
             m_cap = m_size;
         }
+        other.m_data = nullptr;
+        other.m_cap = 0;
+        other.m_size = 0;
     }
 
     vector(initializer_list<value_type> il, const allocator_type &allocator = Allocator())
@@ -354,6 +353,7 @@ public:
 
         if (deallocate) {
             destroy_and_dealloc(m_data, m_size, m_cap, m_alloc);
+            m_data = nullptr;
             m_cap = 0;
             m_size = 0;
         }
@@ -420,6 +420,7 @@ public:
             const size_type count = std::distance(first, last);
 
             if (m_cap < count) {
+                destroy_and_dealloc(m_data, m_size, m_cap, m_alloc);
                 m_data = alloc_traits::allocate(m_alloc, count);
                 m_cap = count;
                 m_size = 0;
