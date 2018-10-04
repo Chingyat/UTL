@@ -42,7 +42,7 @@ public:
     }
 
     constexpr explicit vector_const_iterator(vector_iterator<Tp> it) noexcept
-        : vector_const_iterator(&*it)
+        : vector_const_iterator(it.m_data)
     {
     }
 
@@ -189,9 +189,12 @@ private:
 
     static void realloc(pointer &data, size_type count, size_type &cap, size_type new_cap, allocator_type &allocator)
     {
+        assert((!data && !count) || (data && count));
+
         if constexpr (std::is_trivially_copyable_v<value_type>) {
             const auto new_data = alloc_traits::allocate(allocator, new_cap);
-            std::memcpy(new_data, data, count * sizeof(value_type));
+            if (data)
+                std::memcpy(new_data, data, count * sizeof(value_type));
             alloc_traits::deallocate(allocator, data, cap);
             data = new_data;
             cap = new_cap;

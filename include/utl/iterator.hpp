@@ -25,6 +25,7 @@ public:
 
     reference operator*() const noexcept
     {
+        assert(this->data());
         return static_cast<Ref>(*this->data());
     }
 
