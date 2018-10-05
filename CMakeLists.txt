@@ -46,7 +46,7 @@ target_include_directories(utl PUBLIC include)
 target_compile_features(utl PUBLIC cxx_std_17)
 
 if(UTL_NO_EXCEPTIONS)
-  target_compile_definitions(utl INTERFACE UTL_NO_EXCEPTIONS=1)
+	target_compile_definitions(utl PUBLIC  UTL_NO_EXCEPTIONS=1)
 endif()
 
 enable_testing()

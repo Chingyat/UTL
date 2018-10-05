@@ -92,6 +92,10 @@ public:
         return reinterpret_cast<T *>(p);
     }
 
+    std::type_index type() const noexcept {
+	return m_value->type();
+    }
+
     std::unique_ptr<Value> m_value;
 };
 
@@ -105,7 +109,9 @@ Tp any_cast(any &a) noexcept
 template <class T, typename = std::enable_if_t<!std::is_pointer_v<T>>>
 T any_cast(const any &a)
 {
-    return *a.template get<T>();
+    auto *p = a.template get<T>();
+    if (p)  return *p;
+    UTL_THROW(bad_cast(a.type(), typeid(T)));
 }
 
 } // namespace utl
