@@ -3,6 +3,7 @@
 #include <utl/vector.hpp>
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 
 TEST_CASE("vector constructors")
@@ -199,8 +200,8 @@ struct ThrowWhenCopy {
     {
     }
     ThrowWhenCopy(ThrowWhenCopy &&) noexcept = default;
-    ThrowWhenCopy(const ThrowWhenCopy &) { UTL_THROW(std::runtime_error("ThrowWhenCopy")); }
-    ThrowWhenCopy &operator=(ThrowWhenCopy const &) { UTL_THROW(std::runtime_error("=")); }
+    [[noreturn]] ThrowWhenCopy(const ThrowWhenCopy &) { UTL_THROW(std::runtime_error("ThrowWhenCopy")); }
+    [[noreturn]] ThrowWhenCopy &operator=(ThrowWhenCopy const &) { UTL_THROW(std::runtime_error("=")); }
     ThrowWhenCopy &operator=(ThrowWhenCopy &&) = default;
     ~ThrowWhenCopy() = default;
 };

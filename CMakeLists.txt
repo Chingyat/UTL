@@ -4,7 +4,7 @@ project(UTL)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(UTL_NO_EXCEPTIONS "use -fno-rtti -fno-exceptions" OFF)
+option(UTL_NO_EXCEPTIONS "use  -fno-exceptions" OFF)
 
 if(CMAKE_COMPILER_IS_GNUCC)
 
@@ -29,22 +29,21 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
   add_compile_options(/W4)
   if(UTL_NO_EXCEPTIONS)
-    add_compile_options(/GR- /EH-)
+    add_compile_options( /EH-)
   endif()
 endif()
 
 if(UNIX)
   if(UTL_NO_EXCEPTIONS)
     add_compile_options(-fno-exceptions
-                        -fno-rtti
                         -Wno-return-type
                         -Wno-empty-body)
   endif()
 endif()
 
-add_library(utl INTERFACE)
-target_include_directories(utl INTERFACE include)
-target_compile_features(utl INTERFACE cxx_std_17)
+add_library(utl lib/any.cpp)
+target_include_directories(utl PUBLIC include)
+target_compile_features(utl PUBLIC cxx_std_17)
 
 if(UTL_NO_EXCEPTIONS)
   target_compile_definitions(utl INTERFACE UTL_NO_EXCEPTIONS=1)
