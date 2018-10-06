@@ -66,13 +66,13 @@ class any {
     };
 
 public:
-    template <class T>
+    template <class T, typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
     any(T &&x)
         : m_value(new ValueImpl<std::decay_t<T>>(std::forward<T>(x)))
     {
     }
 
-    template <class T>
+    template <class T, typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
     any &operator=(T &&x)
     {
         m_value = std::make_unique<ValueImpl<std::decay_t<T>>>(std::forward<T>(x));

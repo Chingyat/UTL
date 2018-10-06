@@ -13,7 +13,9 @@ TEST_CASE("any")
 
     CHECK(utl::any_cast<int>(a) == 12);
 
+#if !UTL_NO_EXCEPTIONS
     CHECK_THROWS_AS(utl::any_cast<float>(a), utl::bad_cast);
+#endif
 
     a = 12.6;
 
@@ -25,4 +27,14 @@ TEST_CASE("any")
     const utl::any b = std::string("Hello");
     CHECK(utl::any_cast<std::string>(b) == "Hello");
     CHECK(*utl::any_cast<const std::string *>(b) == "Hello");
+
+    auto x = a;
+
+    auto y = std::move(a);
+
+    a = b;
+
+    y = std::move(a);
+
+    CHECK(utl::any_cast<std::string>(y) == "Hello");
 }
