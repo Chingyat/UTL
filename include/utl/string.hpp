@@ -85,6 +85,39 @@ public:
         return m_buffer[position];
     }
 
+    reference at(size_type position)
+    {
+        if (position < m_size)
+            return operator[](position);
+        UTL_THROW(std::out_of_range("basic_string::at"));
+    }
+    const_reference at(size_type position) const
+    {
+        if (position < m_size)
+            return operator[](position);
+        UTL_THROW(std::out_of_range("basic_string::at"));
+    }
+
+    size_type size() const noexcept
+    {
+        return m_size;
+    }
+
+    size_type length() const noexcept
+    {
+        return m_size;
+    }
+
+    pointer data()
+    {
+        return m_onheap ? m_data.data : m_buffer;
+    }
+
+    const_pointer data() const
+    {
+        return m_onheap ? m_data.data : m_buffer;
+    }
+
 private:
     struct HeapData {
         value_type *data;

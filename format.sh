@@ -12,4 +12,4 @@ find ${toplevel}/src -type f -name \*.cpp -print -exec clang-format -i {} \;
 find ${toplevel}/test -type f -name \*.cxx -print -exec clang-format -i {} \;
 
 find ${toplevel}/ -type f -name CMakeLists.txt -print -exec cmake-format -i {} \;
-find ${toplevel}/ -type f -name \*.cmake -print -exec cmake-format -i {} \;
+find ${toplevel}/cmake -type f -name \*.cmake -print -exec cmake-format -i {} \;
