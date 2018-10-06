@@ -37,4 +37,10 @@ TEST_CASE("any")
     y = std::move(a);
 
     CHECK(utl::any_cast<std::string>(y) == "Hello");
+
+    utl::any xxx;
+
+    utl::any yyy = xxx;
+
+    y = xxx;
 }

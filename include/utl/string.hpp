@@ -86,6 +86,11 @@ public:
     }
 
 private:
+    struct HeapData {
+        value_type *data;
+        size_type cap;
+    };
+
     static constexpr size_type max_buffer_size = 16;
 
     bool m_onheap = false;
@@ -93,10 +98,7 @@ private:
 
     union {
         value_type m_buffer[max_buffer_size / sizeof(value_type)];
-        struct {
-            value_type *data;
-            size_type cap;
-        } m_data;
+        HeapData m_data;
     };
 };
 

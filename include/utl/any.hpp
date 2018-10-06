@@ -65,7 +65,7 @@ public:
     }
 
     any(const any &other)
-        : m_value(other.m_value->clone())
+        : m_value(other.empty() ? nullptr : other.m_value->clone())
     {
     }
 
@@ -73,7 +73,7 @@ public:
 
     any &operator=(const any &rhs)
     {
-        m_value.reset(rhs.m_value->clone());
+        m_value.reset(rhs.empty() ? nullptr : rhs.m_value->clone());
         return *this;
     }
 
@@ -97,6 +97,8 @@ public:
 
     const std::type_info &type() const noexcept { return m_value->type(); }
 
+    bool empty() const noexcept { return m_value == nullptr; }
+
 private:
     std::unique_ptr<Value> m_value;
 };
@@ -105,7 +107,7 @@ template <class Tp, bool IsPtr = std::is_pointer_v<Tp>>
 Tp any_cast(const any &a) noexcept(IsPtr)
 {
     using T = std::remove_pointer_t<Tp>;
-    const auto p = a.template get<T>();
+    const auto p = a.get<T>();
 
     if constexpr (IsPtr)
         return p;
@@ -118,7 +120,7 @@ Tp any_cast(const any &a) noexcept(IsPtr)
 template <class Tp, typename = std::enable_if_t<std::is_pointer_v<Tp>>>
 Tp any_cast(any &a) noexcept
 {
-    return a.template get<std::remove_pointer_t<Tp>>();
+    return a.get<std::remove_pointer_t<Tp>>();
 }
 
 } // namespace utl

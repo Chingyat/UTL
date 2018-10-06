@@ -18,6 +18,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
                       -Wno-missing-prototypes
                       -Wno-shadow-field-in-constructor
                       -Wno-padded
+                      -Wno-weak-vtables
                       -ferror-limit=10)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
   option(ENABLE_COVERAGE "Enable coverage reporting for gcc/clang" FALSE)
