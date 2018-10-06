@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <initializer_list>
+#include <string>
 
 #ifndef UTL_NO_EXCEPTIONS
 #    define UTL_NO_EXCEPTIONS 0
@@ -25,5 +26,6 @@
 
 namespace utl {
 
+using std::char_traits;
 using std::initializer_list;
-}
+} // namespace utl

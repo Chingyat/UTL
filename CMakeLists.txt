@@ -39,7 +39,7 @@ if(UNIX)
   endif()
 endif()
 
-add_library(utl lib/any.cpp)
+add_library(utl lib/any.cpp lib/string.cpp)
 target_include_directories(utl PUBLIC include)
 target_compile_features(utl PUBLIC cxx_std_17)
 
