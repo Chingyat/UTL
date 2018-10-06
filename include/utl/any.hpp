@@ -12,8 +12,7 @@ class bad_cast : public std::exception {
 public:
     bad_cast(const std::type_index &from, const std::type_index &to)
         : std::exception()
-        , msg(
-              std::string("cannot cast ") + from.name() + " to " + to.name())
+        , msg(std::string("cannot cast ") + from.name() + " to " + to.name())
     {
     }
 
@@ -73,10 +72,27 @@ public:
     {
     }
 
+    template <class T>
+    any &operator=(T &&x)
+    {
+        m_value = std::make_unique<ValueImpl<std::decay_t<T>>>(std::forward<T>(x));
+        return *this;
+    }
+
     any(const any &other)
         : m_value(other.m_value->clone())
     {
     }
+
+    any(any &&other) noexcept = default;
+
+    any &operator=(const any &rhs)
+    {
+        m_value = rhs.m_value->clone();
+        return *this;
+    }
+
+    any &operator=(any &&rhs) noexcept = default;
 
     template <class T>
     T *get() noexcept
@@ -92,26 +108,33 @@ public:
         return reinterpret_cast<T *>(p);
     }
 
-    std::type_index type() const noexcept {
-	return m_value->type();
+    std::type_index type() const noexcept
+    {
+        return m_value->type();
     }
 
+private:
     std::unique_ptr<Value> m_value;
 };
+
+template <class Tp, bool IsPtr = std::is_pointer_v<Tp>>
+Tp any_cast(const any &a) noexcept(IsPtr)
+{
+    using T = std::remove_pointer_t<Tp>;
+    const auto p = a.template get<T>();
+
+    if constexpr (IsPtr)
+        return p;
+    else if (p)
+        return *p;
+    else
+        UTL_THROW(bad_cast(a.type(), typeid(Tp)));
+}
 
 template <class Tp, typename = std::enable_if_t<std::is_pointer_v<Tp>>>
 Tp any_cast(any &a) noexcept
 {
-    using T = std::remove_pointer_t<Tp>;
-    return a.template get<T>();
-}
-
-template <class T, typename = std::enable_if_t<!std::is_pointer_v<T>>>
-T any_cast(const any &a)
-{
-    auto *p = a.template get<T>();
-    if (p)  return *p;
-    UTL_THROW(bad_cast(a.type(), typeid(T)));
+    return a.template get<std::remove_pointer_t<Tp>>();
 }
 
 } // namespace utl

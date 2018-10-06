@@ -29,15 +29,13 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
   add_compile_options(/W4)
   if(UTL_NO_EXCEPTIONS)
-    add_compile_options( /EH-)
+    add_compile_options(/EH-)
   endif()
 endif()
 
 if(UNIX)
   if(UTL_NO_EXCEPTIONS)
-    add_compile_options(-fno-exceptions
-                        -Wno-return-type
-                        -Wno-empty-body)
+    add_compile_options(-fno-exceptions -Wno-return-type -Wno-empty-body)
   endif()
 endif()
 
@@ -46,7 +44,7 @@ target_include_directories(utl PUBLIC include)
 target_compile_features(utl PUBLIC cxx_std_17)
 
 if(UTL_NO_EXCEPTIONS)
-	target_compile_definitions(utl PUBLIC  UTL_NO_EXCEPTIONS=1)
+  target_compile_definitions(utl PUBLIC UTL_NO_EXCEPTIONS=1)
 endif()
 
 enable_testing()
