@@ -7,10 +7,9 @@
 #include <typeinfo>
 
 namespace utl {
-
 class bad_cast : public std::exception {
 public:
-    bad_cast(const std::type_index &from, const std::type_index &to)
+    bad_cast(const std::type_info &from, const std::type_info &to)
         : std::exception()
         , msg(std::string("cannot cast ") + from.name() + " to " + to.name())
     {
@@ -25,20 +24,16 @@ class any {
 
     struct Value {
 
-        virtual std::unique_ptr<Value> clone() const = 0;
+        virtual Value *clone() const = 0;
 
-        virtual std::type_index type() const noexcept = 0;
+        virtual const std::type_info &type() const noexcept = 0;
 
         virtual ~Value() = default;
-
-        virtual void *get(std::type_index const &t) const noexcept = 0;
-
-        virtual void dummy_vfunc();
     };
 
     template <class T>
     struct ValueImpl : Value {
-        T mutable m_data;
+        T m_data;
 
         template <class... Args>
         ValueImpl(Args &&... args)
@@ -46,33 +41,23 @@ class any {
         {
         }
 
-        std::unique_ptr<Value> clone() const final
-        {
-            return std::make_unique<ValueImpl>(m_data);
-        }
+        Value *clone() const final { return new ValueImpl(m_data); }
 
-        std::type_index type() const noexcept final
-        {
-            return typeid(T);
-        }
-
-        void *get(std::type_index const &t) const noexcept final
-        {
-            if (t == type()) {
-                return &m_data;
-            }
-            return nullptr;
-        }
+        const std::type_info &type() const noexcept final { return typeid(T); }
     };
 
 public:
-    template <class T, typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
+    any() = default;
+
+    template <class T,
+        typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
     any(T &&x)
         : m_value(new ValueImpl<std::decay_t<T>>(std::forward<T>(x)))
     {
     }
 
-    template <class T, typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
+    template <class T,
+        typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
     any &operator=(T &&x)
     {
         m_value = std::make_unique<ValueImpl<std::decay_t<T>>>(std::forward<T>(x));
@@ -88,7 +73,7 @@ public:
 
     any &operator=(const any &rhs)
     {
-        m_value = rhs.m_value->clone();
+        m_value.reset(rhs.m_value->clone());
         return *this;
     }
 
@@ -97,21 +82,20 @@ public:
     template <class T>
     T *get() noexcept
     {
-        auto *p = m_value->get(typeid(T));
-        return reinterpret_cast<T *>(p);
+        if (typeid(T) == type())
+            return &static_cast<ValueImpl<T> *>(m_value.get())->m_data;
+        return nullptr;
     }
 
     template <class T>
     const T *get() const noexcept
     {
-        auto *p = m_value->get(typeid(T));
-        return reinterpret_cast<T *>(p);
+        if (typeid(T) == type())
+            return &static_cast<const ValueImpl<T> *>(m_value.get())->m_data;
+        return nullptr;
     }
 
-    std::type_index type() const noexcept
-    {
-        return m_value->type();
-    }
+    const std::type_info &type() const noexcept { return m_value->type(); }
 
 private:
     std::unique_ptr<Value> m_value;

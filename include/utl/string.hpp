@@ -12,8 +12,7 @@ struct basic_string_const_iterator;
 
 template <typename CharType, typename Traits>
 struct basic_string_iterator
-    : iterator_wrapper<CharType *, CharType, CharType &,
-          CharType *, std::random_access_iterator_tag> {
+    : iterator_wrapper<CharType *, CharType, CharType &, CharType *, std::random_access_iterator_tag> {
     constexpr basic_string_iterator() noexcept = default;
 
     constexpr explicit basic_string_iterator(CharType *data) noexcept
@@ -27,8 +26,8 @@ struct basic_string_iterator
 };
 
 template <typename CharType, typename Traits>
-struct basic_string_const_iterator : iterator_wrapper<const CharType *, CharType, const CharType &,
-                                         const CharType *, std::random_access_iterator_tag> {
+struct basic_string_const_iterator
+    : iterator_wrapper<const CharType *, CharType, const CharType &, const CharType *, std::random_access_iterator_tag> {
 
     constexpr basic_string_const_iterator() noexcept = default;
 
