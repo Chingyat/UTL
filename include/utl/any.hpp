@@ -31,11 +31,11 @@ class any {
         virtual ~Value() = default;
     };
 
-    template <class T>
+    template <typename T>
     struct ValueImpl : Value {
         T m_data;
 
-        template <class... Args>
+        template <typename... Args>
         ValueImpl(Args &&... args)
             : m_data(std::forward<Args>(args)...)
         {
@@ -47,17 +47,15 @@ class any {
     };
 
 public:
-    any() = default;
+    constexpr any() = default;
 
-    template <class T,
-        typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
     any(T &&x)
         : m_value(new ValueImpl<std::decay_t<T>>(std::forward<T>(x)))
     {
     }
 
-    template <class T,
-        typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
     any &operator=(T &&x)
     {
         m_value = std::make_unique<ValueImpl<std::decay_t<T>>>(std::forward<T>(x));
@@ -79,7 +77,7 @@ public:
 
     any &operator=(any &&rhs) noexcept = default;
 
-    template <class T>
+    template <typename T>
     T *get() noexcept
     {
         if (typeid(T) == type())
@@ -87,11 +85,11 @@ public:
         return nullptr;
     }
 
-    template <class T>
+    template <typename T>
     const T *get() const noexcept
     {
         if (typeid(T) == type())
-            return &static_cast<const ValueImpl<T> *>(m_value.get())->m_data;
+            return &static_cast<ValueImpl<std::decay_t<T>> *>(m_value.get())->m_data;
         return nullptr;
     }
 
@@ -103,7 +101,7 @@ private:
     std::unique_ptr<Value> m_value;
 };
 
-template <class Tp, bool IsPtr = std::is_pointer_v<Tp>>
+template <typename Tp, bool IsPtr = std::is_pointer_v<Tp>>
 Tp any_cast(const any &a) noexcept(IsPtr)
 {
     using T = std::remove_pointer_t<Tp>;
@@ -117,7 +115,7 @@ Tp any_cast(const any &a) noexcept(IsPtr)
         UTL_THROW(bad_cast(a.type(), typeid(Tp)));
 }
 
-template <class Tp, typename = std::enable_if_t<std::is_pointer_v<Tp>>>
+template <typename Tp, typename = std::enable_if_t<std::is_pointer_v<Tp>>>
 Tp any_cast(any &a) noexcept
 {
     return a.get<std::remove_pointer_t<Tp>>();
