@@ -6,7 +6,7 @@
 ## Features:
 
   - C++ 17
-  - Can build without exceptions and RTTI
+  - Can build without exceptions
   - Zero dependency
 
 ## Roadmap
@@ -34,8 +34,8 @@
     - [ ] type_traits
     - [ ] function
     - [ ] tuple
-    - [ ] any
-    - [ ] optional
+    - [x] any
+    - [x] optional
 
   - Filesystem
     
