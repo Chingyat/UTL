@@ -39,12 +39,13 @@ endif()
 add_library(utl lib/any.cpp lib/string.cpp)
 target_include_directories(utl PUBLIC include)
 
-if (${CMAKE_MAJOR_VERSION} GREATER 8)
+if(${CMAKE_VERSION} VERSION_GREATER "3.8")
   target_compile_features(utl PUBLIC cxx_std_17)
 elseif(UNIX)
   target_compile_options(utl PUBLIC -std=c++1z)
+else()
+  message("Please consider to update to CMake 3.8")
 endif()
-
 
 if(UTL_NO_EXCEPTIONS)
   target_compile_definitions(utl PUBLIC UTL_NO_EXCEPTIONS=1)
