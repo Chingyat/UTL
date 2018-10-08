@@ -15,10 +15,7 @@ constexpr auto in_place = in_place_t::in_place;
 struct bad_optional_access : public std::exception {
     bad_optional_access() = default;
 
-    const char *what() const noexcept
-    {
-        return "deferencing null optional object";
-    }
+    const char *what() const noexcept final;
 };
 
 template <typename T>

@@ -29,4 +29,6 @@ TEST_CASE("optional")
     };
 
     CHECK(get_optional().value() == 'a');
+
+    utl::optional<int> default_construction;
 }

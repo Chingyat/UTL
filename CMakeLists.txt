@@ -36,7 +36,7 @@ if(UNIX)
   endif()
 endif()
 
-add_library(utl lib/any.cpp lib/string.cpp)
+add_library(utl lib/any.cpp lib/optional.cpp lib/string.cpp)
 target_include_directories(utl PUBLIC include)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.8")
