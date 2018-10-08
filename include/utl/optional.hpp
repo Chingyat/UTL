@@ -21,8 +21,11 @@ struct bad_optional_access : public std::exception {
 template <typename T>
 constexpr bool is_nothrow_movable_v = std::is_nothrow_move_constructible_v<T> &&std::is_nothrow_move_assignable_v<T>;
 
+template <typename T, typename = void>
+class optional_base;
+
 template <typename T>
-class optional_base {
+class optional_base<T, std::enable_if_t<!std::is_trivially_copyable_v<T>>> {
 public:
     using value_type = T;
     using reference = T &;
@@ -220,7 +223,9 @@ private:
             data()->~T();
     }
 
-    std::aligned_storage_t<sizeof(T), alignof(T)> m_data;
+    union {
+        T m_data;
+    };
     bool m_has_value;
 };
 
