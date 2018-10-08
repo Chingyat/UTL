@@ -36,8 +36,7 @@ struct basic_string_const_iterator
     {
     }
 
-    constexpr basic_string_const_iterator(
-        basic_string_iterator<CharType, Traits> iter) noexcept
+    constexpr basic_string_const_iterator(basic_string_iterator<CharType, Traits> iter) noexcept
         : m_data(iter.m_data)
     {
     }
@@ -45,8 +44,8 @@ struct basic_string_const_iterator
     const CharType *m_data;
 };
 
-template <typename CharType, typename Traits = char_traits<CharType>, typename Allocator = allocator<CharType>>
-class basic_string {
+template <typename CharType, typename Traits, typename Allocator>
+class string_base {
 public:
     using value_type = CharType;
     using traits_type = Traits;
@@ -63,12 +62,34 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    basic_string() noexcept
-        : m_size(0)
-        , m_buffer{0}
+protected:
+    string_base() noexcept(std::is_nothrow_default_constructible_v<allocator_type>)
+        : string_base(allocator_type{})
     {
     }
 
+    explicit string_base(const Allocator &alloc) noexcept
+        : m_alloc(alloc)
+        , m_size{}
+        , m_buffer{}
+    {
+    }
+
+    string_base(size_type count, value_type ch, const allocator_type &alloc = allocator_type())
+        : m_alloc(alloc)
+        , m_size(count)
+    {
+        if (m_size >= max_buffer_size) {
+            m_data.data = alloc_traits::allocate(m_alloc, count + 1);
+            m_data.cap = count + 1;
+            m_onheap = true;
+        }
+
+        traits_type::assign(data(), count, ch);
+        traits_type::assign(data() + count, value_type{});
+    }
+
+public:
     reference operator[](size_type position) noexcept
     {
         if (m_onheap) {
@@ -118,7 +139,7 @@ public:
         return m_onheap ? m_data.data : m_buffer;
     }
 
-private:
+protected:
     struct HeapData {
         value_type *data;
         size_type cap;
@@ -126,6 +147,7 @@ private:
 
     static constexpr size_type max_buffer_size = 16;
 
+    allocator_type m_alloc;
     bool m_onheap = false;
     size_type m_size;
 
@@ -133,6 +155,11 @@ private:
         value_type m_buffer[max_buffer_size / sizeof(value_type)];
         HeapData m_data;
     };
+};
+
+template <typename CharType, typename Traits = char_traits<CharType>, typename Allocator = allocator<CharType>>
+class basic_string : public string_base<CharType, Traits, Allocator> {
+public:
 };
 
 extern template class basic_string<char>;
