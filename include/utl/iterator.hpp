@@ -18,6 +18,8 @@ public:
     using difference_type = Diff;
 
     static_assert(std::is_signed_v<Diff>);
+    static_assert(std::is_reference_v<Ref>);
+    static_assert(std::is_pointer_v<Ptr>);
 
     auto &data() noexcept { return static_cast<It *>(this)->m_data; }
 
