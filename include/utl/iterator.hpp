@@ -21,22 +21,22 @@ public:
     static_assert(std::is_reference_v<Ref>);
     static_assert(std::is_pointer_v<Ptr>);
 
-    auto &data() noexcept { return static_cast<It *>(this)->m_data; }
+    constexpr auto &data() noexcept { return static_cast<It *>(this)->m_data; }
 
-    auto data() const noexcept { return static_cast<const It *>(this)->m_data; }
+    constexpr auto data() const noexcept { return static_cast<const It *>(this)->m_data; }
 
-    reference operator*() const noexcept
+    constexpr reference operator*() const noexcept
     {
         assert(this->data());
         return static_cast<Ref>(*this->data());
     }
 
-    reference operator[](difference_type idx) const noexcept
+    constexpr reference operator[](difference_type idx) const noexcept
     {
         return static_cast<Ref>(this->data()[idx]);
     }
 
-    pointer operator->() const noexcept { return static_cast<Ptr>(this->data()); }
+    constexpr pointer operator->() const noexcept { return static_cast<Ptr>(this->data()); }
 
     It &operator++() noexcept
     {
@@ -64,17 +64,17 @@ public:
         return retval;
     }
 
-    friend It operator+(const iterator_wrapper &it, difference_type diff) noexcept
+    friend inline constexpr It operator+(const iterator_wrapper &it, difference_type diff) noexcept
     {
         return It{it.data() + diff};
     }
 
-    friend It operator+(difference_type diff, const iterator_wrapper &it) noexcept
+    friend inline constexpr It operator+(difference_type diff, const iterator_wrapper &it) noexcept
     {
         return It{it.data() + diff};
     }
 
-    friend It operator-(const iterator_wrapper &it, difference_type diff) noexcept
+    friend inline constexpr It operator-(const iterator_wrapper &it, difference_type diff) noexcept
     {
         return It{it.data() - diff};
     }
@@ -91,37 +91,37 @@ public:
         return static_cast<It &>(*this);
     }
 
-    friend bool operator==(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
+    friend inline constexpr bool operator==(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
     {
         return lhs.data() == rhs.data();
     }
 
-    friend bool operator!=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
+    friend inline constexpr bool operator!=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
     {
         return lhs.data() != rhs.data();
     }
 
-    friend bool operator<(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
+    friend inline constexpr bool operator<(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
     {
         return lhs.data() < rhs.data();
     }
 
-    friend bool operator>(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
+    friend inline constexpr bool operator>(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
     {
         return lhs.data() > rhs.data();
     }
 
-    friend bool operator<=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
+    friend inline constexpr bool operator<=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
     {
         return lhs.data() <= rhs.data();
     }
 
-    friend bool operator>=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
+    friend inline constexpr bool operator>=(const iterator_wrapper &lhs, const iterator_wrapper &rhs) noexcept
     {
         return lhs.data() >= rhs.data();
     }
 
-    friend difference_type operator-(const iterator_wrapper &lhs, iterator_wrapper const &rhs) noexcept
+    friend inline constexpr difference_type operator-(const iterator_wrapper &lhs, iterator_wrapper const &rhs) noexcept
     {
         return lhs.data() - rhs.data();
     }
@@ -152,9 +152,9 @@ template <typename InputIterator>
 class move_if_noexcept_iterator
     : public move_if_noexcept_iterator_base<InputIterator> {
 public:
-    move_if_noexcept_iterator() noexcept = default;
+    constexpr move_if_noexcept_iterator() noexcept = default;
 
-    explicit move_if_noexcept_iterator(InputIterator it) noexcept
+    constexpr explicit move_if_noexcept_iterator(InputIterator it) noexcept
         : m_data(it)
     {
     }
