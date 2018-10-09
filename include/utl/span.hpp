@@ -66,7 +66,7 @@ struct span_const_iterator
 template <typename Span>
 constexpr span_iterator<Span>::operator span_const_iterator<Span>() const noexcept
 {
-    return {m_data};
+    return span_const_iterator<Span>{m_data};
 }
 
 template <typename Span, typename T>
@@ -83,7 +83,23 @@ struct span_base {
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    constexpr pointer data() const noexcept { return Span::m_ptr; }
+    constexpr pointer data() const noexcept { return static_cast<const Span *>(this)->m_data; }
+    constexpr index_type size() const noexcept { return static_cast<const Span *>(this)->m_size; }
+    constexpr index_type size_bytes() const noexcept { return size() * sizeof(element_type); }
+
+    constexpr iterator begin() const noexcept { return iterator{data()}; }
+    constexpr const_iterator cbegin() const noexcept { return const_iterator{data()}; }
+    constexpr iterator end() const noexcept { return iterator{data() + size()}; }
+    constexpr const_iterator cend() const noexcept { return const_iterator{data() + size()}; }
+    constexpr reverse_iterator rbegin() const noexcept { return reverse_iterator{end()}; }
+    constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator{cend()}; }
+    constexpr reverse_iterator rend() const noexcept { return reverse_iterator{begin()}; }
+    constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator{cbegin()}; }
+
+    constexpr reference operator[](index_type idx) const { return data()[idx]; }
+    constexpr reference operator()(index_type idx) const { return data()[idx]; }
+
+    constexpr bool empty() const noexcept { return size() == 0; }
 };
 
 template <typename Span, typename T>
@@ -92,13 +108,13 @@ private:
     using base_type = span_base<Span, T>;
 
 public:
-    typename span_base<Span, T>::pointer m_ptr;
+    typename span_base<Span, T>::pointer m_data;
     typename span_base<Span, T>::index_type m_size;
 
     static constexpr std::ptrdiff_t extent = dynamic_extent;
 
     constexpr dynamic_span(typename base_type::pointer ptr, typename base_type::index_type count)
-        : m_ptr(ptr)
+        : m_data(ptr)
         , m_size(count)
     {
     }
@@ -109,21 +125,21 @@ public:
 
     template <std::size_t N>
     constexpr dynamic_span(typename base_type::element_type (&arr)[N], std::enable_if_t<span_can_construct_from_v<dynamic_span, typename base_type::element_type[N]>> * = nullptr) noexcept
-        : m_ptr(arr)
+        : m_data(arr)
         , m_size(N)
     {
     }
 
     template <std::size_t N>
     constexpr dynamic_span(std::array<typename base_type::value_type, N> &arr, std::enable_if_t<span_can_construct_from_v<dynamic_span, std::array<typename base_type::value_type, N>>> * = nullptr) noexcept
-        : m_ptr(arr.data())
+        : m_data(arr.data())
         , m_size(arr.size())
     {
     }
 
     template <std::size_t N>
     constexpr dynamic_span(const std::array<typename base_type::value_type, N> &arr, std::enable_if_t<span_can_construct_from_v<dynamic_span, std::array<typename base_type::value_type, N>>> * = nullptr) noexcept
-        : m_ptr(arr.data())
+        : m_data(arr.data())
         , m_size(arr.size())
     {
     }
@@ -151,7 +167,7 @@ public:
 
 template <typename Span, typename T, std::ptrdiff_t Extent>
 struct static_span : public span_base<Span, T> {
-    typename span_base<Span, T>::pointer m_ptr;
+    typename span_base<Span, T>::pointer m_data;
     static constexpr typename span_base<Span, T>::index_type m_size = Extent;
 };
 
