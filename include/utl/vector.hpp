@@ -20,7 +20,7 @@ class vector_iterator
 public:
     constexpr vector_iterator() noexcept = default;
 
-    constexpr explicit vector_iterator(Tp *data) noexcept
+    explicit vector_iterator(Tp *data) noexcept
         : m_data(data)
     {
     }
@@ -36,7 +36,7 @@ class vector_const_iterator
 public:
     constexpr vector_const_iterator() noexcept = default;
 
-    constexpr explicit vector_const_iterator(const Tp *data) noexcept
+    explicit vector_const_iterator(const Tp *data) noexcept
         : m_data(const_cast<Tp *>(data))
     {
     }
