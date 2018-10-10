@@ -1,4 +1,4 @@
-# ! /usr/bin/cmake -P
+#!/usr/bin/cmake -P
 
 find_package(Git REQUIRED)
 
@@ -14,12 +14,15 @@ string(STRIP ${project_root} project_root)
 
 if(clang_format)
   execute_process(COMMAND ${GIT_EXECUTABLE} clang-format)
+  execute_process(COMMAND find ${project_root} -regextype posix-extended
+                          "-regex" ".*\\.(h|hpp|hxx|hh|ttc|cpp|cc|cxx|c++)"
+                          "!" "-path" "*CMakeFiles*" -print -exec
+                          ${clang_format} -i {} ";")
 endif()
 
 if(cmake_format)
-  message("formatting ")
-  execute_process(COMMAND find ${project_root} -name "*.cmake" -print -exec
-                          ${cmake_format} -i {} ";")
-  execute_process(COMMAND find ${project_root} -name "CMakeLists.txt" -print
-                          -exec ${cmake_format} -i {} ";")
+  execute_process(COMMAND find ${project_root} "(" -name "*.cmake" -o -name
+                          "CMakeLists.txt" ")" "!" -path "*CMakeFiles*" -print
+                          -exec ${cmake_format} --first-comment-is-literal true
+                          -i {} ";")
 endif()

@@ -34,3 +34,4 @@
 # IDE or build system generated files
 build/
 .vscode/
+*~
