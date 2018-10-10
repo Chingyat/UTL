@@ -15,9 +15,9 @@ string(STRIP ${project_root} project_root)
 if(clang_format)
   execute_process(COMMAND ${GIT_EXECUTABLE} clang-format)
   execute_process(COMMAND find ${project_root} -regextype posix-extended
-                          "-regex" ".*\\.(h|hpp|hxx|hh|ttc|cpp|cc|cxx|c++)"
-                          "!" "-path" "*CMakeFiles*" -print -exec
-                          ${clang_format} -i {} ";")
+                          "-regex" ".*\\.(h|hpp|hxx|hh|ttc|cpp|cc|cxx|c++)" "!"
+                          "-path" "*CMakeFiles*" -print -exec ${clang_format} -i
+                          {} ";")
 endif()
 
 if(cmake_format)

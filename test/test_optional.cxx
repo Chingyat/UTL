@@ -19,9 +19,9 @@ TEST_CASE("optional for trivially-copyable objects")
 
     CHECK(!y.has_value());
     CHECK(!y);
-#    if !UTL_NO_EXCEPTIONS
+#if !UTL_NO_EXCEPTIONS
     CHECK_THROWS_AS(y.value(), utl::bad_optional_access);
-#    endif
+#endif
     CHECK(y.value_or(1.0) == 1);
 
     auto get_optional = [] {

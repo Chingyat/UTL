@@ -21,10 +21,10 @@ TEST_SUITE("vector")
     TEST_CASE("assignment operators")
     {
         utl::vector<std::string> v1(300, std::string("12345678901234567890"));
-        utl::vector<std::string> v2{"Hello ", "World"};
-        utl::vector<std::string> v3{"Hello ", "World"};
-        utl::vector<std::string> v4{"Hello ", "World"};
-        utl::vector<std::string> v5{"Hello ", "World"};
+        utl::vector<std::string> v2{ "Hello ", "World" };
+        utl::vector<std::string> v3{ "Hello ", "World" };
+        utl::vector<std::string> v4{ "Hello ", "World" };
+        utl::vector<std::string> v5{ "Hello ", "World" };
         utl::vector<std::string> v6(300, std::string("12345678901234567890"));
         utl::vector<std::string> v7(300, std::string("12345678901234567890"));
         utl::vector<std::string> v8(300, std::string("12345678901234567890"));
@@ -38,7 +38,7 @@ TEST_SUITE("vector")
         CHECK(std::equal(std::begin(v3), std::end(v3), std::begin(v8), std::end(v8)));
         v8 = std::move(v4);
         CHECK(std::equal(std::begin(v5), std::end(v5), std::begin(v8), std::end(v8)));
-        v5 = {"1", "2", "3", "4", "5"};
+        v5 = { "1", "2", "3", "4", "5" };
         CHECK(v5.size() == 5);
         v1.assign(v6.begin(), v6.end());
         CHECK(std::equal(std::begin(v1), std::end(v1), std::begin(v8), std::end(v8)));
@@ -47,7 +47,7 @@ TEST_SUITE("vector")
         CHECK(std::all_of(v2.begin(), v2.end(), [](const auto &x) { return x == "XXXXXXXXXXX"; }));
         v2.assign(100u, "12345678901234567890");
         CHECK(std::all_of(v2.begin(), v2.end(), [](const auto &x) { return x == "12345678901234567890"; }));
-        v3.assign({"1", "2", "3", "4", "5"});
+        v3.assign({ "1", "2", "3", "4", "5" });
         CHECK(v3.size() == 5);
         v3.reserve(200u);
         v3.assign(100u, "12345678901234567890");
@@ -56,9 +56,9 @@ TEST_SUITE("vector")
 
     TEST_CASE("iterators")
     {
-        utl::vector<int> v{1, 2, 3, 4, 5};
-        const int a1[5]{1, 2, 3, 4, 5};
-        const int a2[5]{5, 4, 3, 2, 1};
+        utl::vector<int> v{ 1, 2, 3, 4, 5 };
+        const int a1[5]{ 1, 2, 3, 4, 5 };
+        const int a2[5]{ 5, 4, 3, 2, 1 };
         CHECK(std::equal(std::begin(a1), std::end(a1),
             std::begin(v), std::end(v)));
         CHECK(std::equal(std::begin(a2), std::end(a2),
@@ -71,7 +71,7 @@ TEST_SUITE("vector")
 
     TEST_CASE("capacity")
     {
-        utl::vector<int> v{1, 2, 3, 4, 5};
+        utl::vector<int> v{ 1, 2, 3, 4, 5 };
         v.resize(1);
         CHECK(v.size() == 1);
         CHECK(v.capacity() >= 5);
@@ -169,7 +169,7 @@ TEST_SUITE("vector")
             CHECK(*v.front() == 34);
         }
 
-        utl::vector<int> v{1, 2, 3, 4, 5};
+        utl::vector<int> v{ 1, 2, 3, 4, 5 };
 
         SUBCASE("vector at")
         {
@@ -210,8 +210,8 @@ TEST_SUITE("vector")
 
     TEST_CASE("modifiers")
     {
-        utl::vector<int> iv{1, 2, 3, 4, 5};
-        utl::vector<std::string> sv{"Hello", "world"};
+        utl::vector<int> iv{ 1, 2, 3, 4, 5 };
+        utl::vector<std::string> sv{ "Hello", "world" };
         utl::vector<std::unique_ptr<int>> pv;
         pv.push_back(std::make_unique<int>(32));
         pv.push_back(std::unique_ptr<int>());

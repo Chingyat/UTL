@@ -66,17 +66,17 @@ public:
 
     friend It operator+(const iterator_wrapper &it, difference_type diff) noexcept
     {
-        return It{it.data() + diff};
+        return It{ it.data() + diff };
     }
 
     friend It operator+(difference_type diff, const iterator_wrapper &it) noexcept
     {
-        return It{it.data() + diff};
+        return It{ it.data() + diff };
     }
 
     friend It operator-(const iterator_wrapper &it, difference_type diff) noexcept
     {
-        return It{it.data() - diff};
+        return It{ it.data() - diff };
     }
 
     It &operator+=(difference_type diff) noexcept

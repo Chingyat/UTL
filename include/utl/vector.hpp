@@ -52,7 +52,7 @@ public:
 template <typename Tp>
 constexpr vector_iterator<Tp>::operator vector_const_iterator<Tp>() const noexcept
 {
-    return vector_const_iterator<Tp>{*this};
+    return vector_const_iterator<Tp>{ *this };
 }
 
 template <typename Tp, typename Allocator = allocator<Tp>>
@@ -482,10 +482,10 @@ public:
     allocator_type get_allocator() const noexcept { return m_alloc; }
 
     // iterators:
-    iterator begin() noexcept { return iterator{m_data}; }
-    const_iterator begin() const noexcept { return const_iterator{m_data}; }
-    iterator end() noexcept { return iterator{m_data + m_size}; }
-    const_iterator end() const noexcept { return const_iterator{m_data + m_size}; }
+    iterator begin() noexcept { return iterator{ m_data }; }
+    const_iterator begin() const noexcept { return const_iterator{ m_data }; }
+    iterator end() noexcept { return iterator{ m_data + m_size }; }
+    const_iterator end() const noexcept { return const_iterator{ m_data + m_size }; }
     reverse_iterator rbegin() noexcept
     {
         return std::make_reverse_iterator(end());
@@ -601,7 +601,7 @@ public:
     iterator emplace(const_iterator position, Args &&... args)
     {
         auto ptr = insert_impl(position - begin(), 1, forward_args(std::forward<Args>(args)...));
-        return iterator{ptr};
+        return iterator{ ptr };
     }
 
     template <typename Arg>
@@ -662,19 +662,19 @@ public:
     iterator insert(const_iterator position, const_reference elem)
     {
         auto *ptr = insert_impl(position - begin(), 1, forward_args(elem));
-        return iterator{ptr};
+        return iterator{ ptr };
     }
 
     iterator insert(const_iterator position, rvalue_reference elem)
     {
         auto *ptr = insert_impl(position - begin(), 1, forward_args(std::move(elem)));
-        return iterator{ptr};
+        return iterator{ ptr };
     }
 
     iterator insert(const_iterator position, size_type num, const_reference elem)
     {
         auto *ptr = insert_impl(position - begin(), num, forward_args(elem));
-        return iterator{ptr};
+        return iterator{ ptr };
     }
 
     template <typename InputIterator>
@@ -685,18 +685,18 @@ public:
             const auto idx_origin = idx;
             while (first != last)
                 insert_impl(idx++, 1, forward_args(*first++));
-            return iterator{m_data + idx_origin};
+            return iterator{ m_data + idx_origin };
         } else {
             const size_type num = std::distance(first, last);
             auto *const ptr = insert_impl(position - begin(), num, first);
-            return iterator{ptr};
+            return iterator{ ptr };
         }
     }
 
     iterator insert(const_iterator position, initializer_list<value_type> il)
     {
         auto *const ptr = insert_impl(position - begin(), il.size(), il.begin());
-        return iterator{ptr};
+        return iterator{ ptr };
     }
 
     iterator erase(const_iterator position)
@@ -747,7 +747,7 @@ public:
             swap(t_less.m_size, t_more.m_size);
             swap(t_less.m_cap, t_more.m_cap);
         } else {
-            for (size_type i{0}; i != m_size; ++i) {
+            for (size_type i{ 0 }; i != m_size; ++i) {
                 swap(m_data[i], other.m_data[i]);
             }
         }
