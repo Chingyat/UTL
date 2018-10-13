@@ -66,4 +66,22 @@ inline Tp *copy_backward(move_if_noexcept_iterator<Tp *> first, move_if_noexcept
     std::memmove(ret_val, first.data(), (last - first) * sizeof(Tp));
     return ret_val;
 }
+
+template <typename InputIterator, typename Callable>
+inline void for_each_impl(InputIterator first, InputIterator last, Callable &&callable, 
+	std::input_iterator_tag)
+{
+	while (first != last)
+		callable(*first++);
+}
+
+template <typename InputIterator, typename Callable>
+inline void for_each(InputIterator first, InputIterator last, Callable &&callable)
+{
+	for_each_impl(first, last, std::forward<Callable>(callable),  typename
+		std::iterator_traits<InputIterator>::iterator_category());
+}
+
+
+
 } // namespace utl

@@ -159,7 +159,12 @@ protected:
 
 template <typename CharType, typename Traits = char_traits<CharType>, typename Allocator = allocator<CharType>>
 class basic_string : public string_base<CharType, Traits, Allocator> {
+    using base_type = string_base<CharType, Traits, Allocator>;
 public:
+    using base_type::base_type;
+
+    basic_string() = default;
+
 };
 
 extern template class basic_string<char>;
