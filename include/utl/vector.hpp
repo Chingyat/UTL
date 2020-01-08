@@ -224,7 +224,7 @@ public:
     explicit vector(size_type num, const allocator_type &allocator = allocator_type())
         : m_alloc(allocator)
         , m_data(alloc_and_construct(num, forward_args(), m_alloc))
-        , m_cap(num)
+        , m_cap(num + 1)
         , m_size(num)
     {
     }
