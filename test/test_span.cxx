@@ -97,5 +97,9 @@ TEST_CASE("dynamic span")
         CHECK(s16[i] == s4[i + 1]);
     }
 
+    auto bytes = utl::as_bytes(s4);
+    CHECK(bytes.size() == s4.size_bytes());
 
+    auto wb = utl::as_writable_bytes(s4);
+    CHECK(bytes.size() == wb.size());
 }

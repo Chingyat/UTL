@@ -323,7 +323,7 @@ as_bytes(span<T, N> s) noexcept
 template <class T, std::size_t N>
 span<byte, std::conditional_t<N == dynamic_extent, std::integral_constant<std::size_t, dynamic_extent>, std::integral_constant<std::size_t, sizeof(T) * N>>::value> as_writable_bytes(span<T, N> s) noexcept
 {
-    return { reinterpret_cast<byte *>(s.data()), s.size_bytes() }
+    return { reinterpret_cast<byte*>(s.data()), s.size_bytes() };
 }
 
 template <std::size_t I, class T, std::size_t N>
