@@ -36,7 +36,7 @@
     - [ ] tuple
     - [x] any
     - [x] optional
-    - [ ] span
+    - [x] span
 
   - Filesystem
     
