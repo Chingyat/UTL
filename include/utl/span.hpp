@@ -127,9 +127,9 @@ public:
 
   static constexpr std::size_t extent = Extent;
 
-  // template <std::size_t E = Extent, typename = std::enable_if_t<E == -1 || E
-  // == 0>>
-  constexpr span() noexcept = default;
+  template <std::size_t E = Extent,
+            typename = std::enable_if_t<E == -1 || E == 0>>
+  constexpr span() noexcept {}
 
   constexpr span(pointer ptr, size_type count) : s_{ptr, count} {}
 
