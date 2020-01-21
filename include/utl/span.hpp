@@ -5,6 +5,10 @@
 
 #include <array>
 
+#ifdef HAVE_CPP17
+#include <byte>
+#endif
+
 namespace utl {
 
 #ifdef HAVE_CPP17
