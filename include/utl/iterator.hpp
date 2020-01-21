@@ -17,9 +17,9 @@ public:
     using iterator_category = Cat;
     using difference_type = Diff;
 
-    static_assert(std::is_signed_v<Diff>);
-    static_assert(std::is_reference_v<Ref>);
-    static_assert(std::is_pointer_v<Ptr>);
+    static_assert(std::is_signed<Diff>(), "");
+    static_assert(std::is_reference<Ref>(), "");
+    static_assert(std::is_pointer<Ptr>(), "");
 
     constexpr auto &data() noexcept { return static_cast<It *>(this)->m_data; }
 
@@ -131,7 +131,14 @@ public:
         assert(this->data() != nullptr);
         this->data() += diff;
     }
+
+    void dummy();
 };
+
+template <typename It, typename Val, typename Ref, typename Ptr, typename Cat, typename Diff>
+void iterator_wrapper<It, Val, Ref, Ptr, Cat, Diff>::dummy() {
+    static_assert(std::is_base_of<iterator_wrapper, It>(), "");
+}
 
 template <typename InputIterator>
 class move_if_noexcept_iterator;

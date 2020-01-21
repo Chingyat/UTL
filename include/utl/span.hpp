@@ -7,182 +7,329 @@
 
 namespace utl {
 
-inline constexpr std::ptrdiff_t dynamic_extent = -1;
+#ifdef HAVE_CPP17
+inline constexpr std::size_t dynamic_extent = -1;
 
-template <typename T, std::ptrdiff_t Extent = dynamic_extent>
-class span;
+using std::byte;
 
-template <typename Span, typename Container>
-inline constexpr bool span_can_construct_from_v = std::is_convertible_v<
-    std::remove_pointer_t<decltype(std::data(std::declval<Container &>()))> (*)[],
-    typename Span::element_type (*)[]>;
+using std::data;
+using std::size;
 
-template <typename Span>
-struct span_const_iterator;
+#else
+constexpr std::size_t dynamic_extent = -1;
 
-template <typename Span>
-struct span_iterator
-    : iterator_wrapper<
-          span_iterator<Span>,
-          typename Span::value_type,
-          typename Span::reference,
-          typename Span::pointer,
-          std::random_access_iterator_tag> {
-    typename Span::pointer m_data;
+using byte = unsigned char;
 
-    constexpr span_iterator() = default;
-
-    constexpr explicit span_iterator(typename Span::pointer data) noexcept
-        : m_data(data)
-    {
-    }
-
-    constexpr operator span_const_iterator<Span>() const noexcept;
-};
-
-template <typename Span>
-struct span_const_iterator
-    : iterator_wrapper<
-          span_const_iterator<Span>,
-          typename Span::value_type,
-          typename Span::const_reference,
-          typename Span::const_pointer,
-          std::random_access_iterator_tag> {
-    typename Span::pointer m_data;
-
-    constexpr span_const_iterator() = default;
-
-    constexpr explicit span_const_iterator(typename Span::pointer data) noexcept
-        : m_data(data)
-    {
-    }
-
-    constexpr span_const_iterator(const span_iterator<Span> it) noexcept
-        : m_data(it.m_data)
-    {
-    }
-};
-
-template <typename Span>
-constexpr span_iterator<Span>::operator span_const_iterator<Span>() const noexcept
+template <class C>
+constexpr auto size(const C &c) -> decltype(c.size())
 {
-    return span_const_iterator<Span>{m_data};
+    return c.size();
 }
 
-template <typename Span, typename T>
-struct span_base {
-    using element_type = T;
-    using value_type = std::remove_cv_t<T>;
-    using index_type = std::ptrdiff_t;
-    using pointer = T *;
-    using const_pointer = const T *;
-    using reference = T &;
-    using const_reference = const T &;
-    using iterator = span_iterator<Span>;
-    using const_iterator = span_const_iterator<Span>;
-    using reverse_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+template <class T, std::size_t N>
 
-    constexpr pointer data() const noexcept { return static_cast<const Span *>(this)->m_data; }
-    constexpr index_type size() const noexcept { return static_cast<const Span *>(this)->m_size; }
-    constexpr index_type size_bytes() const noexcept { return size() * sizeof(element_type); }
+constexpr std::size_t size(const T (&)[N]) noexcept
+{
+    return N;
+}
 
-    constexpr iterator begin() const noexcept { return iterator{data()}; }
-    constexpr const_iterator cbegin() const noexcept { return const_iterator{data()}; }
-    constexpr iterator end() const noexcept { return iterator{data() + size()}; }
-    constexpr const_iterator cend() const noexcept { return const_iterator{data() + size()}; }
-    constexpr reverse_iterator rbegin() const noexcept { return reverse_iterator{end()}; }
-    constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator{cend()}; }
-    constexpr reverse_iterator rend() const noexcept { return reverse_iterator{begin()}; }
-    constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator{cbegin()}; }
+template <class C>
 
-    constexpr reference operator[](index_type idx) const { return data()[idx]; }
-    constexpr reference operator()(index_type idx) const { return data()[idx]; }
+constexpr auto data(C &c) -> decltype(c.data())
+{
+    return c.data();
+}
 
-    constexpr bool empty() const noexcept { return size() == 0; }
-};
+template <class C>
+constexpr auto data(const C &c) -> decltype(c.data())
+{
+    return c.data();
+}
 
-template <typename Span, typename T>
-struct dynamic_span : public span_base<Span, T> {
+template <class T, std::size_t N>
+constexpr T *data(T (&array)[N]) noexcept
+{
+    return array;
+}
+
+template <class E>
+constexpr const E *data(std::initializer_list<E> il) noexcept
+{
+    return il.begin();
+}
+#endif
+
+template <typename T, size_t Extent = dynamic_extent>
+class span;
+
+namespace detail {
+    template <typename T, std::size_t E>
+    struct span_storage {
+        typedef T element_type;
+        T *p_ {};
+        std::size_t dummy_;
+        constexpr static std::size_t s_ = E;
+    };
+
+    template <typename T>
+    struct span_storage<T, dynamic_extent> {
+        typedef T element_type;
+        T *p_ {};
+        std::size_t s_ {};
+    };
+
+    template <typename T>
+    struct is_span : std::false_type {
+    };
+
+    template <typename T, std::size_t E>
+    struct is_span<span<T, E>> : std::true_type {
+    };
+
+    template <typename T>
+    struct is_std_array : std::false_type {
+    };
+
+    template <typename T, std::size_t S>
+    struct is_std_array<std::array<T, S>> : std::true_type {
+    };
+} // namespace detail
+
+template <typename T, size_t Extent>
+class span {
+public:
+    typedef T element_type;
+    typedef std::remove_cv_t<T> value_type;
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+    typedef T *pointer;
+    typedef const T *const_pointer;
+    typedef T &reference;
+    typedef const T &const_reference;
+
+    struct iterator : iterator_wrapper<iterator, value_type, reference, pointer, std::random_access_iterator_tag, difference_type> {
+        using base_type = iterator_wrapper<iterator, value_type, reference, pointer, std::random_access_iterator_tag, difference_type>;
+
+        pointer m_data;
+
+        explicit constexpr iterator(pointer p) noexcept
+            : m_data(p)
+        {
+        }
+    };
+    struct const_iterator : iterator_wrapper<const_iterator, value_type, const_reference, const_pointer, std::random_access_iterator_tag, difference_type> {
+        using base_type = iterator_wrapper<const_iterator, value_type, const_reference, const_pointer, std::random_access_iterator_tag, difference_type>;
+
+        const_pointer m_data;
+
+        explicit constexpr const_iterator(const_pointer p) noexcept
+            : m_data(p)
+        {
+        }
+    };
+
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+    static constexpr std::size_t extent = Extent;
+
+    template <std::size_t E = Extent, typename = std::enable_if_t<E == -1 || E == 0>>
+    constexpr span() noexcept {}
+
+    constexpr span(pointer ptr, size_type count)
+        : s_ {ptr, count}
+    {
+    }
+
+    constexpr span(pointer first, pointer last)
+        : span(first, static_cast<std::size_t>(last - first))
+    {
+    }
+
+    template <std::size_t N>
+    constexpr span(element_type (&arr)[N]) noexcept
+        : span(arr, N)
+    {
+    }
+
+    template <std::size_t N, typename = std::enable_if_t<Extent == dynamic_extent || N == Extent>>
+    constexpr span(std::array<value_type, N> &arr) noexcept
+        : span(arr.data(), arr.size())
+    {
+    }
+
+    template <std::size_t N>
+    constexpr span(const std::array<value_type, N> &arr) noexcept
+        : span(arr.data(), arr.size())
+    {
+    }
+
+    template <class Container, typename = std::enable_if_t<!detail::is_span<Container>::value && !detail::is_std_array<Container>::value && !std::is_array<Container>::value && std::is_convertible<std::remove_pointer_t<decltype(utl::data(std::declval<Container &>()))> (*)[], element_type (*)[]>::value>,
+        typename = decltype(utl::data(std::declval<Container &>())),
+        typename = decltype(utl::size(std::declval<Container &>()))>
+    constexpr span(Container &cont)
+        : span(utl::data(cont), utl::size(cont))
+    {
+    }
+
+    template <class Container, typename = std::enable_if_t<!detail::is_span<Container>::value && !detail::is_std_array<Container>::value && !std::is_array<Container>::value && std::is_convertible<std::remove_pointer_t<decltype(utl::data(std::declval<const Container &>()))> (*)[], element_type (*)[]>::value>,
+        typename = decltype(utl::data(std::declval<const Container &>())),
+        typename = decltype(utl::size(std::declval<const Container &>()))>
+    constexpr span(const Container &cont)
+        : span(utl::data(cont), utl::size(cont))
+    {
+    }
+
+    template <typename U, std::size_t N, typename = std::enable_if_t<(Extent == dynamic_extent || N == Extent) && std::is_convertible<U (*)[], element_type (*)[]>::value>>
+    constexpr span(const span<U, N> &s) noexcept
+        : span(s.data(), s.size())
+    {
+    }
+
+    constexpr span(const span &other) noexcept = default;
+
+    constexpr span &operator=(const span &other) noexcept = default;
+
+    constexpr iterator begin() const noexcept
+    {
+        return iterator {data()};
+    }
+
+    constexpr const_iterator cbegin() const noexcept
+    {
+        return const_iterator {data()};
+    }
+
+    constexpr iterator end() const noexcept
+    {
+        return iterator {data() + size()};
+    }
+
+    constexpr const_iterator cend() const noexcept
+    {
+        return const_iterator {data() + size()};
+    }
+
+    constexpr reverse_iterator rbegin() const noexcept
+    {
+        return reverse_iterator(begin());
+    }
+
+    constexpr const_reverse_iterator crbegin() const noexcept
+    {
+        return const_reverse_iterator(cbegin());
+    }
+
+    constexpr reverse_iterator rend() const noexcept
+    {
+        return reverse_iterator(end());
+    }
+
+    constexpr const_reverse_iterator crend() const noexcept
+    {
+        return const_reverse_iterator(cend());
+    }
+
+    constexpr reference front() const
+    {
+        return *data();
+    }
+
+    constexpr reference back() const
+    {
+        return *(data() + size() - 1);
+    }
+
+    constexpr reference operator[](size_type idx) const
+    {
+        return *(data() + idx);
+    }
+
+    constexpr pointer data() const noexcept
+    {
+        return s_.p_;
+    }
+
+    constexpr size_type size() const noexcept
+    {
+        return s_.s_;
+    }
+
+    constexpr size_type size_bytes() const noexcept
+    {
+        return size() * sizeof(element_type);
+    }
+
+    [[nodiscard]] constexpr bool empty() const noexcept
+    {
+        return size() == 0;
+    }
+
+    template <std::size_t Count>
+    constexpr span<element_type, Count> first() const
+    {
+        return span<element_type, Count>(data(), Count);
+    }
+
+    constexpr span<element_type, dynamic_extent> first(std::size_t Count) const
+    {
+        return span<element_type, dynamic_extent>(data(), Count);
+    }
+
+    template <std::size_t Count>
+    constexpr span<element_type, Count> last() const
+    {
+        return span<element_type, Count>(data() + size() - Count, Count);
+    }
+
+    constexpr span<element_type, dynamic_extent> last(std::size_t Count) const
+    {
+        return span<element_type, dynamic_extent>(data() + size() - Count, Count);
+    }
+
+    template <std::size_t Offset,
+        std::size_t Count = dynamic_extent, typename R = span<element_type, std::conditional_t<Count != dynamic_extent, std::integral_constant<std::size_t, Count>, std::conditional_t<Extent != dynamic_extent, std::integral_constant<std::size_t, Extent - Offset>, std::integral_constant<std::size_t, dynamic_extent>>>::value>>
+    constexpr R
+        subspan() const
+    {
+        if (Count == dynamic_extent)
+            return { data() + Offset, size() - Offset };
+        else
+            return { data() + Offset, Count };
+    }
+
+    constexpr span<element_type, dynamic_extent>
+    subspan(std::size_t Offset,
+        std::size_t Count = dynamic_extent) const
+    {
+        if (Count == dynamic_extent)
+            return span<element_type, dynamic_extent>(data() + Offset, size() - Offset);
+        return span<element_type, dynamic_extent>(data() + Offset, Count);
+    }
+
 private:
-    using base_type = span_base<Span, T>;
-
-public:
-    typename span_base<Span, T>::pointer m_data;
-    typename span_base<Span, T>::index_type m_size;
-
-    static constexpr std::ptrdiff_t extent = dynamic_extent;
-
-    constexpr dynamic_span(typename base_type::pointer ptr, typename base_type::index_type count)
-        : m_data(ptr)
-        , m_size(count)
-    {
-    }
-    constexpr dynamic_span(typename base_type::pointer first, typename base_type::pointer last)
-        : dynamic_span(first, last - first)
-    {
-    }
-
-    template <std::size_t N>
-    constexpr dynamic_span(typename base_type::element_type (&arr)[N], std::enable_if_t<span_can_construct_from_v<dynamic_span, typename base_type::element_type[N]>> * = nullptr) noexcept
-        : m_data(arr)
-        , m_size(N)
-    {
-    }
-
-    template <std::size_t N>
-    constexpr dynamic_span(std::array<typename base_type::value_type, N> &arr, std::enable_if_t<span_can_construct_from_v<dynamic_span, std::array<typename base_type::value_type, N>>> * = nullptr) noexcept
-        : m_data(arr.data())
-        , m_size(arr.size())
-    {
-    }
-
-    template <std::size_t N>
-    constexpr dynamic_span(const std::array<typename base_type::value_type, N> &arr, std::enable_if_t<span_can_construct_from_v<dynamic_span, std::array<typename base_type::value_type, N>>> * = nullptr) noexcept
-        : m_data(arr.data())
-        , m_size(arr.size())
-    {
-    }
-
-    template <typename Container>
-    constexpr dynamic_span(Container &container, std::enable_if_t<span_can_construct_from_v<dynamic_span, Container>> * = nullptr)
-        : dynamic_span(std::data(container), std::size(container))
-    {
-    }
-
-    template <typename Container>
-    constexpr dynamic_span(const Container &container, std::enable_if_t<span_can_construct_from_v<dynamic_span, const Container>> * = nullptr)
-        : dynamic_span(std::data(container), std::size(container))
-    {
-    }
-
-    template <typename U, std::ptrdiff_t N>
-    constexpr dynamic_span(const span<U, N> &container, std::enable_if_t<span_can_construct_from_v<dynamic_span, span<U, N>>> * = nullptr) noexcept
-        : dynamic_span(std::data(container), std::data(container) + std::size(container))
-    {
-    }
-
-    constexpr dynamic_span(const dynamic_span &other) noexcept = default;
+    detail::span_storage<T, Extent> s_;
 };
 
-template <typename Span, typename T, std::ptrdiff_t Extent>
-struct static_span : public span_base<Span, T> {
-    typename span_base<Span, T>::pointer m_data;
-    static constexpr typename span_base<Span, T>::index_type m_size = Extent;
-};
+template <class T, std::size_t N>
+span<const byte,
+    std::conditional_t<N == dynamic_extent, std::integral_constant<std::size_t, dynamic_extent>,
+        std::integral_constant<std::size_t, sizeof(T) * N>>::value>
+as_bytes(span<T, N> s) noexcept
+{
+    return {reinterpret_cast<const byte *>(s.data()), s.size_bytes()};
+}
 
-template <typename T, std::ptrdiff_t Extent>
-class span : public std::conditional_t<
-                 Extent == dynamic_extent,
-                 dynamic_span<span<T, dynamic_extent>, T>,
-                 static_span<span<T, Extent>, T, Extent>> {
-    using base_type = std::conditional_t<
-        Extent == dynamic_extent,
-        dynamic_span<span<T, dynamic_extent>, T>,
-        static_span<span<T, Extent>, T, Extent>>;
+template <class T, std::size_t N>
+span<byte, std::conditional_t<N == dynamic_extent, std::integral_constant<std::size_t, dynamic_extent>, std::integral_constant<std::size_t, sizeof(T) * N>>::value> as_writable_bytes(span<T, N> s) noexcept
+{
+    return { reinterpret_cast<byte*>(s.data()), s.size_bytes() };
+}
 
-public:
-    using base_type::base_type;
-};
+template <std::size_t I, class T, std::size_t N>
+constexpr T &get(span<T, N> s) noexcept
+{
+    return s[I];
+}
 
 } // namespace utl
