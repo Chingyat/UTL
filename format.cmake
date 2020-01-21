@@ -3,7 +3,9 @@
 find_package(Git REQUIRED)
 
 find_program(clang_format
-             NAMES clang-format-7.0.0 clang-format-7.0 clang-format-7)
+             NAMES clang-format-9.0.0 clang-format-9.0 clang-format-9
+                   clang-format-8.0.0 clang-format-8.0 clang-format-8
+                   clang-format-7.0.0 clang-format-7.0 clang-format-7)
 
 find_program(cmake_format NAMES cmake-format)
 
