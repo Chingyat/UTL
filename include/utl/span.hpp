@@ -66,7 +66,7 @@ namespace detail {
     template <typename T, std::size_t E>
     struct span_storage {
         typedef T element_type;
-        T *p_ {};
+        T *p_{};
         std::size_t dummy_;
         constexpr static std::size_t s_ = E;
     };
@@ -74,8 +74,8 @@ namespace detail {
     template <typename T>
     struct span_storage<T, dynamic_extent> {
         typedef T element_type;
-        T *p_ {};
-        std::size_t s_ {};
+        T *p_{};
+        std::size_t s_{};
     };
 
     template <typename T>
@@ -137,7 +137,7 @@ public:
     constexpr span() noexcept {}
 
     constexpr span(pointer ptr, size_type count)
-        : s_ {ptr, count}
+        : s_{ ptr, count }
     {
     }
 
@@ -192,22 +192,22 @@ public:
 
     constexpr iterator begin() const noexcept
     {
-        return iterator {data()};
+        return iterator{ data() };
     }
 
     constexpr const_iterator cbegin() const noexcept
     {
-        return const_iterator {data()};
+        return const_iterator{ data() };
     }
 
     constexpr iterator end() const noexcept
     {
-        return iterator {data() + size()};
+        return iterator{ data() + size() };
     }
 
     constexpr const_iterator cend() const noexcept
     {
-        return const_iterator {data() + size()};
+        return const_iterator{ data() + size() };
     }
 
     constexpr reverse_iterator rbegin() const noexcept
@@ -290,7 +290,7 @@ public:
     template <std::size_t Offset,
         std::size_t Count = dynamic_extent, typename R = span<element_type, std::conditional_t<Count != dynamic_extent, std::integral_constant<std::size_t, Count>, std::conditional_t<Extent != dynamic_extent, std::integral_constant<std::size_t, Extent - Offset>, std::integral_constant<std::size_t, dynamic_extent>>>::value>>
     constexpr R
-        subspan() const
+    subspan() const
     {
         if (Count == dynamic_extent)
             return { data() + Offset, size() - Offset };
@@ -317,13 +317,13 @@ span<const byte,
         std::integral_constant<std::size_t, sizeof(T) * N>>::value>
 as_bytes(span<T, N> s) noexcept
 {
-    return {reinterpret_cast<const byte *>(s.data()), s.size_bytes()};
+    return { reinterpret_cast<const byte *>(s.data()), s.size_bytes() };
 }
 
 template <class T, std::size_t N>
 span<byte, std::conditional_t<N == dynamic_extent, std::integral_constant<std::size_t, dynamic_extent>, std::integral_constant<std::size_t, sizeof(T) * N>>::value> as_writable_bytes(span<T, N> s) noexcept
 {
-    return { reinterpret_cast<byte*>(s.data()), s.size_bytes() };
+    return { reinterpret_cast<byte *>(s.data()), s.size_bytes() };
 }
 
 template <std::size_t I, class T, std::size_t N>

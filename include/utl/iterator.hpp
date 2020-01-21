@@ -136,7 +136,8 @@ public:
 };
 
 template <typename It, typename Val, typename Ref, typename Ptr, typename Cat, typename Diff>
-void iterator_wrapper<It, Val, Ref, Ptr, Cat, Diff>::dummy() {
+void iterator_wrapper<It, Val, Ref, Ptr, Cat, Diff>::dummy()
+{
     static_assert(std::is_base_of<iterator_wrapper, It>(), "");
 }
 

@@ -28,7 +28,7 @@ TEST_CASE("dynamic span")
     CHECK(s4.size() == 4);
     CHECK(s4.data() == x);
 
-    std::array<int, 4> x1{ 1,2,3,4 };
+    std::array<int, 4> x1{ 1, 2, 3, 4 };
 
     utl::span<int, 4> s5(x1);
     CHECK(s5.size() == 4);
@@ -40,10 +40,9 @@ TEST_CASE("dynamic span")
     s2 = s3;
     CHECK(s2.data() == s3.data());
     CHECK(s2.size() == s3.size());
- 
 
     utl::vector<std::string> vec{ "hello", "world" };
-    
+
     utl::span<std::string, 2> s7(vec);
     CHECK(s7.data() == vec.data());
     utl::span<std::string> s8(vec);
