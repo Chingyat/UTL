@@ -2,6 +2,7 @@
 
 #include <utl/compressed_pair.hpp>
 #include <utl/config.hpp>
+#include <cassert>
 
 namespace utl {
 
@@ -94,6 +95,8 @@ public:
   operator=(unique_ptr<U, E> &&r) noexcept {
     reset(r.release());
     get_deleter() = std::forward<E>(r.get_deleter());
+
+    return *this;
   }
 
   unique_ptr &operator=(std::nullptr_t) noexcept { reset(); }
