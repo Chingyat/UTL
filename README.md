@@ -28,7 +28,7 @@
   - Memory Management
     - [x] allocator
     - [ ] shared_ptr
-    - [ ] unique_ptr
+    - [x] unique_ptr
      
   - General utilities
     - [ ] type_traits
