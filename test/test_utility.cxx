@@ -1,6 +1,7 @@
 #include "doctest.h"
 
 #include <string>
+#include <utl/unique_ptr.hpp>
 #include <utl/utility.hpp>
 
 TEST_CASE("test pair") {
@@ -27,7 +28,7 @@ TEST_CASE("test pair") {
   CHECK(p4.first == p1.first);
   CHECK(p4.second == p1.second);
 
-  utl::pair<std::unique_ptr<int>, int> p5;
+  utl::pair<utl::unique_ptr<int>, int> p5;
   auto p6 = std::move(p5);
   p5 = std::move(p6);
 }
