@@ -1,21 +1,14 @@
 #pragma once
-#include <utl/config.hpp>
-
-#include <memory>
-#include <string>
-#include <typeindex>
 #include <typeinfo>
+#include <utl/config.hpp>
+#include <utl/unique_ptr.hpp>
 
 namespace utl {
-class bad_cast : public std::exception {
+using std::bad_cast;
+
+class bad_any_cast : public bad_cast {
 public:
-  bad_cast(const std::type_info &from, const std::type_info &to)
-      : std::exception(),
-        msg(std::string("cannot cast ") + from.name() + " to " + to.name()) {}
-
-  const char *what() const noexcept final;
-
-  std::string msg;
+  const char *what() const noexcept;
 };
 
 class any {
@@ -41,7 +34,7 @@ class any {
   };
 
 public:
-  constexpr any() = default;
+  constexpr any() noexcept = default;
 
   template <typename T,
             typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
@@ -50,7 +43,7 @@ public:
   template <typename T,
             typename = std::enable_if_t<!std::is_same_v<std::decay_t<T>, any>>>
   any &operator=(T &&x) {
-    m_value = std::make_unique<ValueImpl<std::decay_t<T>>>(std::forward<T>(x));
+    m_value = make_unique<ValueImpl<std::decay_t<T>>>(std::forward<T>(x));
     return *this;
   }
 
@@ -83,7 +76,7 @@ public:
   bool empty() const noexcept { return m_value == nullptr; }
 
 private:
-  std::unique_ptr<Value> m_value;
+  utl::unique_ptr<Value> m_value;
 };
 
 template <typename Tp, bool IsPtr = std::is_pointer_v<Tp>>
@@ -96,7 +89,7 @@ Tp any_cast(const any &a) noexcept(IsPtr) {
   else if (p)
     return *p;
   else
-    UTL_THROW(bad_cast(a.type(), typeid(Tp)));
+    UTL_THROW(bad_any_cast());
 }
 
 template <typename Tp, typename = std::enable_if_t<std::is_pointer_v<Tp>>>
