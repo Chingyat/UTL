@@ -1,7 +1,4 @@
 #include "doctest.h"
-#include <cxxabi.h>
-#include <iostream>
-#include <memory>
 #include <utl/unique_ptr.hpp>
 
 struct A {};
